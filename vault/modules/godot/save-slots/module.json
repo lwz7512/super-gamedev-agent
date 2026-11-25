@@ -1,0 +1,16 @@
+{
+  "name": "save-slots",
+  "version": "1.0.0",
+  "engine": "godot",
+  "engine_min": "4.5",
+  "description": "Numbered save slots: atomic writes, a backup per slot, exact types and versioned migration.",
+  "tags": ["save", "persistence", "migration", "slots"],
+  "install_dir": "res://modules/save_slots",
+  "files": ["save_slots.gd", "tests/save_test.gd", "tests/save_test.tscn"],
+  "autoloads": {"SaveSlots": "save_slots.gd"},
+  "input_actions": {},
+  "requires": [],
+  "tests": ["tests/roundtrip.json"],
+  "origin": {"game": "super-gamedev-agent (seed module)", "harvested": "2026-11-25"},
+  "license": "own"
+}

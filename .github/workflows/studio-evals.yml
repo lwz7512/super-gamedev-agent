@@ -1,0 +1,28 @@
+# The free evals on every push: static integrity checks across the studio,
+# the library and the added layers, plus the self-tests that need no engine
+# (the Godot-dependent ones run in their own layer workflows).
+name: Studio evals
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install "Pillow>=10,<13" && sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+      - name: Static integrity
+        run: bash .claude/scripts/evals.sh static
+      - name: Self-tests (no engine)
+        run: bash .claude/scripts/evals.sh selftests --without-godot
+        continue-on-error: false

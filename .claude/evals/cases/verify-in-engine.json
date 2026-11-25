@@ -1,0 +1,12 @@
+{
+  "id": "verify-in-engine",
+  "about": "Run-and-verify: 'does it work in the game' leads to play-verify / godot-verify.sh, not a code read alone.",
+  "fixture": "platformer",
+  "library": ["godot"],
+  "prompt": "Check that jumping actually works when the game runs.",
+  "max_turns": 14,
+  "expect": {
+    "uses_any": {"skills": ["play-verify"], "bash": ["godot-verify.sh"]},
+    "no_write": true
+  }
+}

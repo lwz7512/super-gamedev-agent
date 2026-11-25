@@ -1,0 +1,13 @@
+{
+  "id": "route-double-jump",
+  "about": "Knowledge layer: a Godot movement request loads the engine skill (or the router) before code, and asks before writing.",
+  "fixture": "platformer",
+  "library": ["godot"],
+  "prompt": "Add a double jump to the player in this Godot game.",
+  "max_turns": 14,
+  "expect": {
+    "uses_any": {"skills": ["godot-2d-movement", "platformer", "router"]},
+    "no_write": true,
+    "asks": true
+  }
+}

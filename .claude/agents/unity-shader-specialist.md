@@ -210,6 +210,8 @@ library (`CLAUDE.md` → Knowledge Layer). Before code, a spec or a review that
 depends on them, read the skills below that the task touches: active ones at
 `.claude/skills/<name>/SKILL.md`, the rest at `.claude/library/skills/<category>/<name>/SKILL.md`.
 Open a skill's `references/` only when its body says the subtask needs them.
+Then check `bash .claude/scripts/vault.sh addenda <skill>` (corrections from this studio's
+own games, which win over the skill) and `vault.sh lessons --skill <skill>`.
 
 - **For this role:** `shader-programming`
 - **Anything else, or another engine:** read `.claude/skills/router/SKILL.md` (the router); it detects the engine and names the skills.

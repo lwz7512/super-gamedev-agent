@@ -276,6 +276,7 @@ Otherwise, use `AskUserQuestion`:
 If the user selects [A]: Proceed to invoke `/sprint-plan new`, passing the retrospective file path and a summary of the action items and velocity change so the sprint planner can reference them.
 
 - If this was a milestone retrospective, run `/gate-check` to formally assess readiness for the next phase.
+- Lessons the next game should know (with their evidence) go to the studio vault: `/studio-vault lesson`. A system this game built well can be kept with `/studio-vault harvest`.
 
 ### Guidelines
 

@@ -202,3 +202,6 @@ production/qa/assets/
 production/playtest/sessions/
 production/playtest/inbox/
 production/playtest/sim/*/run-*/
+
+# Where this game's template (and its vault) lives: per machine, written by bin/new-game.sh
+.claude/sga-template

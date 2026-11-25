@@ -381,6 +381,8 @@ fi
 
 # Knowledge library (.claude/library/): an observation, never an action.
 [ -f .claude/scripts/library.sh ] && bash .claude/scripts/library.sh check 2>/dev/null
+# Studio vault: reusable modules and lessons from earlier games (observation only).
+[ -f .claude/scripts/vault.sh ] && bash .claude/scripts/vault.sh brief 2>/dev/null
 
 echo "==================================="
 exit 0

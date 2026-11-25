@@ -1,0 +1,10 @@
+{
+  "name": "save-slots-roundtrip",
+  "scene": "res://__module__/tests/save_test.tscn",
+  "steps": [
+    {"at": 3, "expect": "roundtrip_ok", "label": "save then load keeps ints, Vector2, Color and arrays"},
+    {"at": 3, "expect": "backup_ok", "label": "a corrupt slot falls back to its backup"},
+    {"at": 3, "expect": "migration_ok", "label": "a version-0 save is migrated on load"},
+    {"at": 3, "expect": "empty_ok", "label": "an empty slot loads as {}"}
+  ]
+}

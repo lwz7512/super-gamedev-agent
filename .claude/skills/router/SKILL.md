@@ -16,6 +16,10 @@ description: >
 > `bash .claude/scripts/library.sh activate <group>` if the project will keep needing it.
 > This router supplies **technical knowledge**; the studio workflow (briefs, stories, gates,
 > agent roles, write-approval) still follows `CLAUDE.md`.
+> **Studio corrections.** After reading a library skill, run
+> `bash .claude/scripts/vault.sh addenda <skill>`: addenda come from games made with this studio and
+> win where they disagree with the skill. `vault.sh lessons --skill <skill>` lists what earlier
+> games learned with it, and `vault.sh search <words>` finds a module already built for the job.
 
 The entry point for game-development work. It fingerprints the project to pick **one** engine,
 classifies the task from the request, names the **minimal** set of specialized skills, and tells

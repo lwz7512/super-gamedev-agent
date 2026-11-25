@@ -30,12 +30,14 @@ DEST="$(cd "$DEST" && pwd)"
 # Template-only files stay behind: this script, upstream bookkeeping, and any
 # local session state or settings from working on the template itself.
 rsync -a \
-  --exclude '.git/' --exclude 'bin/' --exclude 'UPSTREAM.lock' \
+  --exclude '/.git/' --exclude '/bin/' --exclude '/UPSTREAM.lock' --exclude '/vault/' \
   --exclude 'production/session-state/*' --exclude 'production/session-logs/' \
   --exclude '.claude/settings.local.json' --exclude 'project.local.yaml' \
   --exclude 'CLAUDE.local.md' --exclude '.claude/agent-memory/' \
   "$TEMPLATE/" "$DEST/"
 mkdir -p "$DEST/production/session-state"
+# The vault stays in the template; the game finds it through this file.
+echo "$TEMPLATE" > "$DEST/.claude/sga-template"
 
 for g in "$@"; do
   bash "$DEST/.claude/scripts/library.sh" activate "$g" | tail -n +2 | wc -l |
@@ -46,6 +48,9 @@ if command -v git >/dev/null 2>&1 && [ ! -d "$DEST/.git" ]; then
   git -C "$DEST" init -q && echo "git repository initialised (nothing committed)"
 fi
 
+# SGA_NO_REGISTER=1 for throwaway games (the evals make one per run).
+[ -n "${SGA_NO_REGISTER:-}" ] || { (cd "$DEST" && bash .claude/scripts/vault.sh register --name "$(basename "$DEST")" >/dev/null 2>&1) \
+  && echo "registered in the studio vault ($TEMPLATE/vault/games.json)"; }
 bash "$DEST/.claude/scripts/library.sh" status
 cat <<EOF
 

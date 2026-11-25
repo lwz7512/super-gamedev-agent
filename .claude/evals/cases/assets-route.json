@@ -1,0 +1,13 @@
+{
+  "id": "assets-route",
+  "about": "Asset production: a sound request goes through make-assets / asset-forge.sh.",
+  "fixture": "platformer",
+  "library": ["godot"],
+  "prompt": "Make a short coin pickup sound effect for this game.",
+  "max_turns": 14,
+  "expect": {
+    "uses_any": {"skills": ["make-assets"], "bash": ["asset-forge.sh"]},
+    "uses_none": {"bash": ["--yes"]},
+    "no_write": true
+  }
+}

@@ -47,6 +47,9 @@ if [ "${1:-}" = "--library" ]; then
   (cd "$ROOT/.claude/library" && python3 -I scripts/validate-skills.py | tail -n 2)
   sed -i.bak "s/^agas .*/agas $agas_new $(date +%F)/" "$LOCK" && rm "$LOCK.bak"
   echo "  library replaced and active skills re-synced"
+  echo "  integrity after the update:"
+  bash "$ROOT/.claude/scripts/evals.sh" static | sed 's/^/    /'
+  echo "  then: evals.sh behavior (paid, asks first) to check the agents still route to renamed skills"
 elif [ "$agas_old" != "$agas_new" ]; then
   echo "  run again with --library to take it"
 else

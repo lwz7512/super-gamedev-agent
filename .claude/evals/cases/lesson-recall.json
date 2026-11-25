@@ -1,0 +1,12 @@
+{
+  "id": "lesson-recall",
+  "about": "Studio vault: a lesson from an earlier game reaches the answer (headless screenshots hang).",
+  "fixture": "platformer",
+  "library": ["godot"],
+  "prompt": "I'm going to take screenshots of this Godot game in a headless CI run. Anything I should watch out for? Just advise, don't change anything.",
+  "max_turns": 10,
+  "expect": {
+    "says_any": ["frame_post_draw", "xvfb", "virtual display", "dummy renderer"],
+    "no_write": true
+  }
+}

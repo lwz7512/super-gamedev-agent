@@ -36,6 +36,8 @@
 | `/art-bible` | Guided, section-by-section Art Bible authoring — creates visual identity spec before asset production begins |
 | `/asset-spec` | Generate per-asset visual specifications and AI generation prompts from GDDs, level docs, or character profiles |
 | `/asset-audit` | Audit assets for naming conventions, file size budgets, and pipeline compliance |
+| `/studio-evals` | Checks the combined studio: static integrity, every layer's self-tests, behaviour evals of real Claude runs (ask-first, routing, paid-call guards) |
+| `/studio-vault` | Reuse across games: find and add vault modules, harvest systems, keep them updated, record lessons and promote them into skill addenda |
 | `/make-assets` | Produce art and sound from specs: OpenArt (MCP), ElevenLabs, sfxr synth, placeholders → clean up, QA, Godot import, in-engine look, licence ledger |
 
 ## UX & Interface Design

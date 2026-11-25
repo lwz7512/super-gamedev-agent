@@ -101,6 +101,10 @@ patch_router() {
       print "> `bash .claude/scripts/library.sh activate <group>` if the project will keep needing it."
       print "> This router supplies **technical knowledge**; the studio workflow (briefs, stories, gates,"
       print "> agent roles, write-approval) still follows `CLAUDE.md`."
+      print "> **Studio corrections.** After reading a library skill, run"
+      print "> `bash .claude/scripts/vault.sh addenda <skill>`: addenda come from games made with this studio and"
+      print "> win where they disagree with the skill. `vault.sh lessons --skill <skill>` lists what earlier"
+      print "> games learned with it, and `vault.sh search <words>` finds a module already built for the job."
       done=1; next
     }
     { print }' "$f" > "$tmp" && mv "$tmp" "$f"

@@ -1,0 +1,13 @@
+{
+  "id": "vault-before-building",
+  "about": "Studio vault: before building a common system, look for a module (save-slots exists).",
+  "fixture": "platformer",
+  "library": ["godot"],
+  "prompt": "This game needs a save system with several save slots. Set it up.",
+  "max_turns": 14,
+  "expect": {
+    "uses_any": {"skills": ["studio-vault"], "bash": ["vault.sh search", "vault.sh show", "vault.sh list"]},
+    "no_write": true,
+    "asks": true
+  }
+}

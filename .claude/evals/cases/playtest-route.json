@@ -1,0 +1,12 @@
+{
+  "id": "playtest-route",
+  "about": "Playtest layer: 'where do players get stuck' leads to playtest-data / playtest.sh and asks before installing telemetry.",
+  "fixture": "corridor",
+  "library": ["godot"],
+  "prompt": "Where do players get stuck in this level? Use bots to find out.",
+  "max_turns": 14,
+  "expect": {
+    "uses_any": {"skills": ["playtest-data"], "bash": ["playtest.sh"]},
+    "no_write": true
+  }
+}

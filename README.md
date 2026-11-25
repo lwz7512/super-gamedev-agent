@@ -19,7 +19,7 @@ A Claude Code game-development setup that combines two projects:
 
 | Layer | Source | What it gives you |
 |-------|--------|-------------------|
-| **Studio** (process) | [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) `abc0de7` | 49 role agents (directors → leads → specialists), 78 workflow skills (`/prototype`, `/start`, `/brainstorm`, GDDs, ADRs, stories, sprints, `/gate-check`, `/cut`, release), 15 safety/quality hooks, path-scoped coding rules, a tested idea → brief → playable browser build → grow → ship pipeline, and rigor tiers (`minimal`/`standard`/`full`) |
+| **Studio** (process) | [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) `abc0de7` | 49 role agents (directors → leads → specialists), 80 workflow skills (`/prototype`, `/start`, `/brainstorm`, GDDs, ADRs, stories, sprints, `/gate-check`, `/cut`, release), 15 safety/quality hooks, path-scoped coding rules, a tested idea → brief → playable browser build → grow → ship pipeline, and rigor tiers (`minimal`/`standard`/`full`) |
 | **Knowledge** (technique) | [awesome-gamedev-agent-skills](https://github.com/gamedev-skills/awesome-gamedev-agent-skills) `c6ca6c4` | 79 skills across 12 engines (Godot, Unity, Unreal, Phaser, PixiJS, three.js, Ebitengine, Bevy, Defold, LÖVE, pygame, Roblox), 15 disciplines (AI, save systems, game feel, shaders, procedural gen, …), 9 genres, Steam/itch publishing, and a router that picks the 2–3 that fit. Pinned to current engine releases (Godot 4.7.2, Unity 6.3 LTS, Unreal 5.8, …) with runnable checker scripts |
 
 The studio decides **what** to build and **how the work flows**. The knowledge
@@ -158,6 +158,48 @@ bash .claude/scripts/playtest.sh report                    # Markdown + charts +
 Findings route to `/bug-report`, `/balance-check`, `/playtest-report` and
 `/perf-profile`. Reference: [`.claude/docs/playtest-data.md`](.claude/docs/playtest-data.md).
 
+## Studio vault (memory across games)
+
+Each game makes the next one easier. The template's `vault/` keeps:
+
+- **Modules:** reusable systems harvested from your games. Their paths are
+  made relocatable, and their autoloads and input actions travel with them.
+  Each has tests and is checked by installing it into an empty Godot project.
+- **Lessons:** what a game taught, with the evidence and what to do next time.
+- **Addenda:** promoted lessons that correct a library skill without forking it.
+
+```bash
+bash .claude/scripts/vault.sh search save          # before building a common system
+bash .claude/scripts/vault.sh add save-slots       # install (lock file tracks the version)
+bash .claude/scripts/vault.sh harvest combo systems/combo --description "..."   # keep what worked
+bash .claude/scripts/vault.sh lessons --skill play-verify
+```
+
+New games find the vault automatically, and session start shows the lessons
+for the game's engine. It ships with `save-slots` and seven lessons learned
+while building this template, two of them promoted to addenda. Use it through
+`/studio-vault`. Reference: [`.claude/docs/studio-vault.md`](.claude/docs/studio-vault.md).
+
+## Evals (is it still one system?)
+
+`/studio-evals` tests the joints between the parts.
+
+- **Static integrity checks:** free, and CI runs them on every push. They
+  check that agents' skill names exist, the router patch is in place, hooks and
+  scripts are present, documentation links resolve, and the vault is consistent.
+- **Self-tests:** every layer's test suite in one command.
+- **Behaviour evals:** real Claude Code runs on throwaway games, scored on
+  what the agent did. Did it load the right skill? Did it ask before writing?
+  Did it leave the paid-call `--yes` to you?
+
+```bash
+bash .claude/scripts/evals.sh static
+bash .claude/scripts/evals.sh selftests --godot
+bash .claude/scripts/evals.sh behavior            # prints the plan and cost cap; add --yes to run
+```
+
+Reference: [`.claude/docs/evals.md`](.claude/docs/evals.md).
+
 ## Keeping up to date
 
 ```bash
@@ -187,6 +229,12 @@ is merged by hand; the files changed locally are:
   `.claude/engines/godot/telemetry/`, `.claude/skills/playtest-data/`, `.claude/docs/playtest-data.md`,
   `.github/workflows/playtest.yml`; a **Playtest Data** section in 8 agents, a handoff at the end of
   `/playtest-report`, `SGA_USER_ARGS` in `godot-verify.sh`
+- new (studio vault): `vault/`, `.claude/scripts/vault.sh`, `.claude/scripts/vault/`, `.claude/skills/studio-vault/`,
+  `.claude/docs/studio-vault.md`; `bin/new-game.sh` writes `.claude/sga-template`, registers the game and leaves
+  `vault/` behind; the router note and 44 agents point at `vault.sh addenda`; session start runs `vault.sh brief`;
+  a handoff at the end of `/retrospective`
+- new (evals): `.claude/scripts/evals.sh`, `.claude/scripts/evals/`, `.claude/evals/cases/`, `.claude/skills/studio-evals/`,
+  `.claude/docs/evals.md`, `.github/workflows/studio-evals.yml`; `bin/update-upstream.sh --library` runs the static checks
 - moved: the studio's own README is `docs/CCGS-README.md` (full feature tour, hooks, rigor tiers)
 
 ## Checks
@@ -197,6 +245,7 @@ bash .claude/scripts/agent-check.sh                       # studio agents
 bash .claude/scripts/godot-verify.sh selftest             # run-and-verify harness (needs Godot)
 bash .claude/scripts/asset-forge.sh selftest              # asset pipeline (SGA_TEST_GODOT=1 adds the Godot import test)
 bash .claude/scripts/playtest.sh selftest                 # telemetry, bots, collector, reports (SGA_TEST_GODOT=1 adds Godot)
+bash .claude/scripts/evals.sh all --godot                 # all of the above, plus the static integrity checks
 (cd .claude/library && python3 -I scripts/validate-skills.py)   # library skills
 ```
 

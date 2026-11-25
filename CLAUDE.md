@@ -45,6 +45,27 @@ nothing without the player's consent. Findings route to `/bug-report`,
 `/balance-check`, `/playtest-report` and `/perf-profile`. Reference:
 `.claude/docs/playtest-data.md`.
 
+## Studio Vault (Memory Across Games)
+
+The template's `vault/` holds what earlier games built and learned:
+reusable **modules** (relocatable systems with tests), **lessons** (what
+happened, the evidence, what to do next time) and **addenda** to library
+skills. Before building a common system, run
+`bash .claude/scripts/vault.sh search <words>`; beside any library skill, read
+`vault.sh addenda <skill>` (it wins over the skill) and
+`vault.sh lessons --skill <skill>`. Capture lessons after retrospectives and
+playtests with `/studio-vault`. Reference: `.claude/docs/studio-vault.md`.
+
+## Evals (Is It Still One System?)
+
+`/studio-evals` (`bash .claude/scripts/evals.sh`) tests the joints between
+the layers: static integrity checks (free; CI runs them on every push), every
+layer's self-tests, and behaviour evals that run Claude Code on throwaway games
+and score what it did (skills loaded, asked before writing, never approved a
+paid call). Run them after `bin/update-upstream.sh`, after editing agents,
+skills, hooks or this file, and after a model change. Behaviour runs cost money:
+never pass `--yes` without the person's yes. Reference: `.claude/docs/evals.md`.
+
 ## Knowledge Layer
 
 The studio layer decides **what** to build and **how the work flows** (briefs,
