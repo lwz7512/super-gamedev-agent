@@ -43,6 +43,8 @@ GUIDES = {
         "Question, options, decision, draft, approval: how the agents work with you instead of for you."),
     "docs/CCGS-README.md": ("guide/studio.html", "Studio layer tour",
         "The full Claude Code Game Studios feature tour: hooks, rules, rigor tiers and studio mode."),
+    ".claude/docs/godot-verify.md": ("guide/godot-verify.html", "Play and verify (Godot)",
+        "Scenarios that play the game: scripted input, live-node checks, errors, screenshots, filmstrips, determinism."),
     ".claude/library/README.md": ("guide/library.html", "Knowledge library tour",
         "The awesome-gamedev-agent-skills catalog: how the router picks skills and what each engine covers."),
     ".claude/library/docs/VERSION-SUPPORT.md": ("guide/engine-versions.html", "Engine versions",

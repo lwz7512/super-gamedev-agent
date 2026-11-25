@@ -1,0 +1,19 @@
+{
+  "name": "jump",
+  "seed": 7,
+  "steps": [
+    {"at": 0,   "expect": "is_on_floor()", "node": "Player", "within": 60, "label": "player lands after spawning"},
+    {"at": 0,   "always": "position.y < 330", "node": "Player", "for": 240, "label": "never falls through the floor"},
+    {"at": 70,  "action": "jump", "hold": 8},
+    {"at": 72,  "expect": "velocity.y < 0", "node": "Player", "within": 4, "label": "jump starts rising"},
+    {"at": 72,  "expect": "position.y < 210", "node": "Player", "within": 30, "label": "jump clears 80px"},
+    {"at": 90,  "shot": "apex"},
+    {"at": 110, "expect": "is_on_floor()", "node": "Player", "within": 90, "label": "lands again"},
+    {"at": 130, "action": "move_right", "hold": 40},
+    {"at": 175, "expect": "position.x > 200", "node": "Player", "label": "walked right"},
+    {"at": 200, "expect": "jumps == 1", "node": "Player", "label": "exactly one jump"},
+    {"at": 210, "shot": "end"}
+  ],
+  "filmstrip": {"from": 66, "every": 4, "count": 12},
+  "trace": {"every": 1, "watch": {"Player": ["position", "velocity"], "Coin": ["position"]}}
+}

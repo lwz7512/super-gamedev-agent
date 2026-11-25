@@ -87,6 +87,7 @@
 |---------|---------|
 | `/qa-plan` | Generate a QA test plan for a sprint or feature |
 | `/smoke-check` | Run critical path smoke test gate before QA hand-off |
+| `/play-verify` | Godot: play the game from a scenario (scripted input, live-node checks, errors, screenshots, filmstrip, determinism) |
 | `/soak-test` | Generate a soak test protocol for extended play sessions |
 | `/regression-suite` | Map test coverage to GDD critical paths, identify fixed bugs without regression tests |
 | `/test-setup` | Scaffold the test framework and CI/CD pipeline for the project's engine |

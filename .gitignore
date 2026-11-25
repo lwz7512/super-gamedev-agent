@@ -184,3 +184,6 @@ $RECYCLE.BIN/
 
 # === Documentation site build output (site/build.py) ===
 _site/
+
+# Run-and-verify output (godot-verify.sh); story evidence goes to production/qa/evidence/
+production/qa/verify/

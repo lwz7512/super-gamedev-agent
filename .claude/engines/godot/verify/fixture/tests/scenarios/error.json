@@ -1,0 +1,7 @@
+{
+  "name": "error",
+  "steps": [
+    {"at": 10, "do": "explode()"},
+    {"at": 20, "expect": "true", "label": "checks still pass; the error alone must fail the run"}
+  ]
+}

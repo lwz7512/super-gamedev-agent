@@ -115,6 +115,13 @@ already; `bash .claude/scripts/library.sh status` shows what is on. On
 `/setup-engine upgrade`, keep the group and point out that the library skills
 state their own baseline version: the pinned `VERSION.md` wins where they differ.
 
+**Godot only — the run-and-verify harness.** Offer it now, since every Godot
+story that changes something visible closes with a run: "May I write the
+verification harness to `addons/sga_verify/`? It lets agents play the game from
+a scenario (`/play-verify`) and does nothing otherwise." On yes, run
+`bash .claude/scripts/godot-verify.sh install` and suggest the export filter it
+prints. On no, say `/play-verify` will offer it again when first needed.
+
 ---
 
 ## 10. Refresh Subcommand

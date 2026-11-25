@@ -1,0 +1,6 @@
+{
+  "name": "missing",
+  "steps": [
+    {"at": 10, "expect": "visible", "node": "NoSuchNode", "label": "points at a node that does not exist"}
+  ]
+}

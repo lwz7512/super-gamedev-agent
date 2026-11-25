@@ -1,0 +1,49 @@
+# Proves the Godot run-and-verify harness on Linux: plays its fixture game and
+# checks that a pass, a fail, an error, a not-assessed run and a determinism run
+# each report as they should (godot-verify.sh selftest). Screenshots need a
+# display, so it runs under xvfb with Mesa's software OpenGL.
+name: Godot verify self-test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".claude/engines/godot/verify/**"
+      - ".claude/scripts/godot-verify.sh"
+      - ".github/workflows/godot-verify.yml"
+  pull_request:
+    paths:
+      - ".claude/engines/godot/verify/**"
+      - ".claude/scripts/godot-verify.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install display and OpenGL
+        run: sudo apt-get update -q && sudo apt-get install -y -q xvfb libgl1-mesa-dri libglx-mesa0
+      - name: Download Godot ${{ env.GODOT_VERSION }}
+        run: |
+          curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip -d "$RUNNER_TEMP/godot"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Self-test
+        env:
+          TMPDIR: ${{ runner.temp }}
+          SGA_GODOT_ARGS: --rendering-driver opengl3
+        run: xvfb-run -a -s "-screen 0 1280x720x24" bash .claude/scripts/godot-verify.sh selftest --timeout 180
+      - name: Keep the outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-verify-selftest
+          path: ${{ runner.temp }}/sga-verify-selftest.*/out
+          if-no-files-found: warn

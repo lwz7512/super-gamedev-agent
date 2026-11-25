@@ -19,7 +19,7 @@ A Claude Code game-development setup that combines two projects:
 
 | Layer | Source | What it gives you |
 |-------|--------|-------------------|
-| **Studio** (process) | [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) `abc0de7` | 49 role agents (directors → leads → specialists), 75 workflow skills (`/prototype`, `/start`, `/brainstorm`, GDDs, ADRs, stories, sprints, `/gate-check`, `/cut`, release), 15 safety/quality hooks, path-scoped coding rules, a tested idea → brief → playable browser build → grow → ship pipeline, and rigor tiers (`minimal`/`standard`/`full`) |
+| **Studio** (process) | [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) `abc0de7` | 49 role agents (directors → leads → specialists), 76 workflow skills (`/prototype`, `/start`, `/brainstorm`, GDDs, ADRs, stories, sprints, `/gate-check`, `/cut`, release), 15 safety/quality hooks, path-scoped coding rules, a tested idea → brief → playable browser build → grow → ship pipeline, and rigor tiers (`minimal`/`standard`/`full`) |
 | **Knowledge** (technique) | [awesome-gamedev-agent-skills](https://github.com/gamedev-skills/awesome-gamedev-agent-skills) `c6ca6c4` | 79 skills across 12 engines (Godot, Unity, Unreal, Phaser, PixiJS, three.js, Ebitengine, Bevy, Defold, LÖVE, pygame, Roblox), 15 disciplines (AI, save systems, game feel, shaders, procedural gen, …), 9 genres, Steam/itch publishing, and a router that picks the 2–3 that fit. Pinned to current engine releases (Godot 4.7.2, Unity 6.3 LTS, Unreal 5.8, …) with runnable checker scripts |
 
 The studio decides **what** to build and **how the work flows**. The knowledge
@@ -72,6 +72,35 @@ Claude starts missing skills, raise the listing budget in your user settings:
 `"skillListingBudgetFraction": 0.02` (see the
 [skills docs](https://code.claude.com/docs/en/skills)).
 
+## Play and verify (Godot)
+
+Agents can **play** a Godot game, not just read its code. A scenario presses
+inputs at exact frames, checks values on live nodes, records every engine and
+script error, and saves screenshots plus a filmstrip of the motion:
+
+```json
+{"name": "jump", "seed": 7, "steps": [
+  {"at": 70, "action": "jump", "hold": 8},
+  {"at": 72, "expect": "position.y < 210", "node": "Player", "within": 30, "label": "jump clears 80px"},
+  {"at": 0,  "always": "position.y < 700", "node": "Player", "for": 240, "label": "never falls through the floor"},
+  {"at": 90, "shot": "apex"}],
+ "filmstrip": {"from": 66, "every": 4, "count": 12}}
+```
+
+```bash
+bash .claude/scripts/godot-verify.sh install                        # once per game
+bash .claude/scripts/godot-verify.sh run tests/scenarios/jump.json  # pass / fail / not assessed
+bash .claude/scripts/godot-verify.sh determinism tests/scenarios/jump.json
+```
+
+Or just ask: `/play-verify write the double jump works and the player can't clip
+through walls`. It writes the scenario from the acceptance criteria, runs it,
+looks at the pictures and reports the studio's `Run result:` line. The harness
+is injected per run through a temporary `override.cfg`, so `project.godot` is
+never edited. `godot-verify.sh selftest` proves the harness on a fixture game
+(on CI too: `.github/workflows/godot-verify.yml`). Full reference:
+[`.claude/docs/godot-verify.md`](.claude/docs/godot-verify.md).
+
 ## Keeping up to date
 
 ```bash
@@ -89,6 +118,10 @@ is merged by hand; the files changed locally are:
 - `.claude/hooks/session-start.sh` — runs `library.sh check`
 - new: `.claude/scripts/library.sh`, `.claude/library/`, `bin/`, `UPSTREAM.lock`, this README,
   the documentation site (`site/`, deployed by `.github/workflows/pages.yml`)
+- new (run-and-verify layer): `.claude/scripts/godot-verify.sh`, `.claude/engines/godot/verify/`,
+  `.claude/skills/play-verify/`, `.claude/docs/godot-verify.md`, `.github/workflows/godot-verify.yml`;
+  a pointer in `.claude/docs/run-and-observe.md` and `skills-reference.md`, a
+  **Run and Verify (Godot)** section in 9 agents, a Godot step in `/setup-engine` §9.5
 - moved: the studio's own README is `docs/CCGS-README.md` (full feature tour, hooks, rigor tiers)
 
 ## Checks
@@ -96,6 +129,7 @@ is merged by hand; the files changed locally are:
 ```bash
 bash .claude/scripts/skill-lint.sh all                    # studio skills
 bash .claude/scripts/agent-check.sh                       # studio agents
+bash .claude/scripts/godot-verify.sh selftest             # run-and-verify harness (needs Godot)
 (cd .claude/library && python3 -I scripts/validate-skills.py)   # library skills
 ```
 

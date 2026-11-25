@@ -6,6 +6,19 @@ discipline, genre and publishing skills across 12 engines (the **knowledge
 layer**, from awesome-gamedev-agent-skills). Each agent owns a specific domain,
 enforcing separation of concerns and quality.
 
+## Run-and-Verify Layer (Godot)
+
+Agents do not only read Godot code: they **play** it. `/play-verify` writes a
+scenario from the acceptance criteria (input at exact frames, checks on live
+nodes, screenshots, a filmstrip), runs it through
+`bash .claude/scripts/godot-verify.sh`, looks at the pictures, and reports
+PASS / FAIL / NOT ASSESSED plus the `Run result:` line. Use it before closing
+any Godot story with something a player can see or do; a passing scenario stays
+in `tests/scenarios/` as a regression check. The harness is added per run through
+a temporary `override.cfg`, so `project.godot` is never edited. Reference:
+`.claude/docs/godot-verify.md`. `godot-verify.sh selftest` proves the harness
+still tells a pass from a fail.
+
 ## Knowledge Layer
 
 The studio layer decides **what** to build and **how the work flows** (briefs,

@@ -112,6 +112,8 @@ autoload that on the wanted condition does
 `get_viewport().get_texture().get_image().save_png(path)`, then
 `get_tree().quit()`.
 
+**Scripted play (preferred when the state takes input to reach).** `/play-verify` (`bash .claude/scripts/godot-verify.sh run <scenario>.json --out production/qa/evidence/[story-slug]`) launches the scene, drives input at exact frames, checks node values, records every engine and script error, and saves named shots plus a filmstrip of the motion, which covers part of the timing half a still cannot show. Its `pass`/`fail` maps to `OBSERVED`, its `not_assessed` to `NOT VERIFIED`. Format and limits: `.claude/docs/godot-verify.md`.
+
 ### Unity 6 — one MonoBehaviour
 
 `-batchmode` displays nothing, so the run is either the **built player** or the

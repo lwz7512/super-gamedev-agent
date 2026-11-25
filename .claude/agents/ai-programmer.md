@@ -96,6 +96,16 @@ Before writing any code:
 ### Implements specs from: `game-designer`, `level-designer`
 ### Coordinates with: `gameplay-programmer` where AI behavior meets player-facing gameplay code
 
+## Run and Verify (Godot)
+
+On a Godot project, do not stop at "it compiles". Play the change: write or
+reuse a scenario in `tests/scenarios/` and run
+`bash .claude/scripts/godot-verify.sh run <scenario>.json` (the `/play-verify`
+skill has the full procedure; the format is `.claude/docs/godot-verify.md`).
+Read the screenshots and filmstrip it saves, and report what held, what broke
+and what could not be assessed. If the harness is not installed, ask before
+running `godot-verify.sh install`.
+
 ## Knowledge Library
 
 Engine APIs and established technique for this role live in the gamedev skill

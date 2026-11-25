@@ -1,0 +1,6 @@
+{
+  "name": "broken",
+  "steps": [
+    {"at": 30, "expect": "position.y < 0", "node": "Player", "label": "player is above the screen (false on purpose)"}
+  ]
+}
