@@ -42,7 +42,7 @@ the person's yes.
 **OpenArt (images) — MCP.** OpenArt has no public REST API; its official
 agent route is the MCP server `https://mcp.openart.ai/mcp`, signed in with
 your OpenArt account (OAuth, no key). It is registered in this repo's
-`.mcp.json`; run `/mcp` once to sign in. Claude calls the OpenArt tools with
+`.mcp.json` and pre-approved in `.claude/settings.json` (`enabledMcpjsonServers`), so it connects without a startup prompt; run `/mcp` once to sign in. Claude calls the OpenArt tools with
 the prompt from `asset-forge.sh prompt <id>`, then hands the result URL to
 `ingest --provider openart --via mcp --model <model>`. OpenArt's terms forbid
 scripts driving the web app (ToS 4.4), so the MCP server, not browser
