@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://lwz7512.github.io/super-gamedev-agent/">
     <img src="site/assets/banner.svg" width="100%"
-         alt="Super Gamedev Agent: a game studio of AI agents for Claude Code">
+         alt="Super Gamedev Agent: a pixel-art level where a hero jumps from Idea to Brief, Build, Verify, Art and sound, Playtest and Ship, watched by a team of AI roles and you, the director">
   </a>
 </p>
 

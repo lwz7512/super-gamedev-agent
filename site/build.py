@@ -490,10 +490,9 @@ document.querySelectorAll('[data-filter]').forEach(function (input) {{
                        for i, (k, name, sub, text, href) in enumerate(layers))
         main = f"""
 <section class="hero">
-  <img class="banner" src="{u('assets/banner.svg')}" alt="Super Gamedev Agent: a Claude Code game studio in seven layers" width="1280" height="400">
-  <p class="tagline">A Claude Code setup for making games, in seven layers: a studio of AI agents
-  that runs the process, a library that knows your engine, and five layers that let the agents
-  play the game, make its assets, learn from playtests, remember across games and check themselves.</p>
+  <img class="banner" src="{u('assets/banner.svg')}" alt="Super Gamedev Agent: a pixel-art level where a hero jumps from Idea to Ship, watched by a team of AI roles and you, the director" width="1280" height="440">
+  <p class="tagline">Describe a game to Claude, and your AI studio helps you make it: from a first
+  game in your browser to shipping with a team.</p>
   <div class="stats">{stats}</div>
   <pre class="quickstart"><code>git clone git@github.com:{REPO}.git
 super-gamedev-agent/bin/new-game.sh ~/games/my-game godot
