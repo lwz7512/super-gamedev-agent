@@ -32,6 +32,19 @@ commercial-use terms against `project.goal`. **Paid calls never run without the
 person's yes** (the tool exits 4 and prints the plan first). Reference:
 `.claude/docs/asset-forge.md`.
 
+## Playtest and Telemetry Layer
+
+`/playtest-data` brings evidence from play back into design through
+`bash .claude/scripts/playtest.sh`: a `Telemetry` autoload in the Godot game
+(sessions, errors, frame times, crashes, game events, an F8 feedback form in
+playtest builds), headless **simulation bots** (a random monkey that needs no
+game code, or scripted `SgaBot`s) with a stall watchdog for soft-locks, a
+collector for testers' sessions, and reports with funnels, level drop-off,
+death heatmaps, grouped errors and threshold checks. Release builds record
+nothing without the player's consent. Findings route to `/bug-report`,
+`/balance-check`, `/playtest-report` and `/perf-profile`. Reference:
+`.claude/docs/playtest-data.md`.
+
 ## Knowledge Layer
 
 The studio layer decides **what** to build and **how the work flows** (briefs,

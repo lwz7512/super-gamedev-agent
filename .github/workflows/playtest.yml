@@ -1,0 +1,50 @@
+# Tests the playtest and telemetry layer: the analysis checks (each seen
+# failing, passing and not assessed), the collector's guards, ingest, install,
+# and on Godot: scripted and monkey bots with the stall watchdog, a session
+# through the collector with crash detection, and the F8 feedback form played
+# through godot-verify.sh.
+name: Playtest layer tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".claude/scripts/playtest/**"
+      - ".claude/scripts/playtest.sh"
+      - ".claude/engines/godot/telemetry/**"
+      - ".claude/scripts/godot-verify.sh"
+      - ".github/workflows/playtest.yml"
+  pull_request:
+    paths:
+      - ".claude/scripts/playtest/**"
+      - ".claude/engines/godot/telemetry/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install Pillow, display and OpenGL
+        run: |
+          pip install "Pillow>=10,<13"
+          sudo apt-get update -q && sudo apt-get install -y -q xvfb libgl1-mesa-dri libglx-mesa0
+      - name: Download Godot ${{ env.GODOT_VERSION }}
+        run: |
+          curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip -d "$RUNNER_TEMP/godot"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Tests (with Godot integration)
+        env:
+          SGA_TEST_GODOT: "1"
+          SGA_GODOT_ARGS: --rendering-driver opengl3 --audio-driver Dummy
+        run: xvfb-run -a -s "-screen 0 1280x720x24" bash .claude/scripts/playtest.sh selftest

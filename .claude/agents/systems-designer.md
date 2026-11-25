@@ -158,6 +158,14 @@ precise rules and formulas.
 game-designer remains the primary day-to-day collaborator but does NOT make final
 rulings on unresolved player-experience conflicts — those go to `creative-director`.
 
+## Playtest Data
+
+Evidence from play lives in `production/playtest/` (`/playtest-data`,
+`.claude/docs/playtest-data.md`): session telemetry from people, simulation
+runs from bots, and reports with charts. Before a design or balance call that
+play could settle, read the latest report (or ask for a bot run); quote the
+numbers and the session count, and say when the sample is too small to decide.
+
 ## Knowledge Library
 
 Engine APIs and established technique for this role live in the gamedev skill

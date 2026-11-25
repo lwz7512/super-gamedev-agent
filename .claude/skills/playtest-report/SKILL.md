@@ -172,3 +172,4 @@ Verdict: **COMPLETE** — playtest report generated.
 - Act on the highest-priority finding category first.
 - After addressing design changes: re-run `/design-review` on the updated GDD.
 - After fixing bugs: re-run `/bug-triage` to update priorities.
+- For the Quantitative Data section, run `/playtest-data report`: deaths and where, time per level, drop-off and errors from the session telemetry, plus bot runs.

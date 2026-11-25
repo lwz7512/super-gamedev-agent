@@ -49,7 +49,7 @@
     <g transform="translate(800 60)">
       <rect width="400" height="118" rx="16" fill="#ffffff" fill-opacity="0.07" stroke="#ffb547" stroke-opacity="0.7" stroke-width="2"/>
       <text x="24" y="38" fill="#ffb547" font-size="15" font-weight="700" letter-spacing="2">STUDIO LAYER</text>
-      <text x="24" y="72" fill="#ffffff" font-size="26" font-weight="700">49 agents · 77 workflows</text>
+      <text x="24" y="72" fill="#ffffff" font-size="26" font-weight="700">49 agents · 78 workflows</text>
       <text x="24" y="100" fill="#c9c6e8" font-size="15">brief → prototype → stories → gates → ship</text>
       <!-- org chart pips -->
       <g fill="#ffb547">

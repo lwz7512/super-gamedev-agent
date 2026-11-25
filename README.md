@@ -19,7 +19,7 @@ A Claude Code game-development setup that combines two projects:
 
 | Layer | Source | What it gives you |
 |-------|--------|-------------------|
-| **Studio** (process) | [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) `abc0de7` | 49 role agents (directors → leads → specialists), 77 workflow skills (`/prototype`, `/start`, `/brainstorm`, GDDs, ADRs, stories, sprints, `/gate-check`, `/cut`, release), 15 safety/quality hooks, path-scoped coding rules, a tested idea → brief → playable browser build → grow → ship pipeline, and rigor tiers (`minimal`/`standard`/`full`) |
+| **Studio** (process) | [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) `abc0de7` | 49 role agents (directors → leads → specialists), 78 workflow skills (`/prototype`, `/start`, `/brainstorm`, GDDs, ADRs, stories, sprints, `/gate-check`, `/cut`, release), 15 safety/quality hooks, path-scoped coding rules, a tested idea → brief → playable browser build → grow → ship pipeline, and rigor tiers (`minimal`/`standard`/`full`) |
 | **Knowledge** (technique) | [awesome-gamedev-agent-skills](https://github.com/gamedev-skills/awesome-gamedev-agent-skills) `c6ca6c4` | 79 skills across 12 engines (Godot, Unity, Unreal, Phaser, PixiJS, three.js, Ebitengine, Bevy, Defold, LÖVE, pygame, Roblox), 15 disciplines (AI, save systems, game feel, shaders, procedural gen, …), 9 genres, Steam/itch publishing, and a router that picks the 2–3 that fit. Pinned to current engine releases (Godot 4.7.2, Unity 6.3 LTS, Unreal 5.8, …) with runnable checker scripts |
 
 The studio decides **what** to build and **how the work flows**. The knowledge
@@ -130,6 +130,34 @@ seams. The ledger writes `assets/provenance.yaml` and enforces each provider's
 commercial-use terms (OpenArt Plus or higher; any paid ElevenLabs plan) when
 `project.goal` is to sell. Reference: [`.claude/docs/asset-forge.md`](.claude/docs/asset-forge.md).
 
+## Playtest data (telemetry and bots)
+
+`/playtest-data` brings evidence from play back into design: what people and
+bots did, where they quit, died or got stuck, what broke and what players said.
+
+```bash
+bash .claude/scripts/playtest.sh install --playtest        # Telemetry autoload + F8 feedback form
+bash .claude/scripts/playtest.sh simulate monkey --runs 200 --watch Player:position
+bash .claude/scripts/playtest.sh collect                   # receive testers' sessions
+bash .claude/scripts/playtest.sh report                    # Markdown + charts + threshold checks
+```
+
+- **Telemetry** (Godot addon): one local session file per play, plus optional
+  upload. It records errors, frame times, crashes, scene changes and your own
+  events (`Telemetry.event("death", {"pos": ...})`). Release builds record
+  nothing without the player's consent.
+- **Bots:** the random **monkey** needs no game code and finds crashes,
+  soft-locks and falls out of the world. Scripted `SgaBot`s measure win rates
+  and times. Runs are headless, parallel and repeatable by seed, and a
+  watchdog ends any run that stops making progress.
+- **Reports:** funnels, level completion and deaths, death heatmaps, grouped
+  errors, frame-time percentiles, player feedback, and bot outcomes with where
+  they got stuck. Each check reports PASS / FAIL / NOT ASSESSED against your
+  thresholds.
+
+Findings route to `/bug-report`, `/balance-check`, `/playtest-report` and
+`/perf-profile`. Reference: [`.claude/docs/playtest-data.md`](.claude/docs/playtest-data.md).
+
 ## Keeping up to date
 
 ```bash
@@ -155,6 +183,10 @@ is merged by hand; the files changed locally are:
   `.claude/skills/make-assets/`, `.claude/docs/asset-forge.md`, `.mcp.json` (OpenArt MCP),
   `.github/workflows/asset-forge.yml`; an **Asset Production** section in 4 agents, a
   `/make-assets` handoff at the end of `/asset-spec`, a row in `skills-reference.md`
+- new (playtest and telemetry layer): `.claude/scripts/playtest.sh`, `.claude/scripts/playtest/`,
+  `.claude/engines/godot/telemetry/`, `.claude/skills/playtest-data/`, `.claude/docs/playtest-data.md`,
+  `.github/workflows/playtest.yml`; a **Playtest Data** section in 8 agents, a handoff at the end of
+  `/playtest-report`, `SGA_USER_ARGS` in `godot-verify.sh`
 - moved: the studio's own README is `docs/CCGS-README.md` (full feature tour, hooks, rigor tiers)
 
 ## Checks
@@ -164,6 +196,7 @@ bash .claude/scripts/skill-lint.sh all                    # studio skills
 bash .claude/scripts/agent-check.sh                       # studio agents
 bash .claude/scripts/godot-verify.sh selftest             # run-and-verify harness (needs Godot)
 bash .claude/scripts/asset-forge.sh selftest              # asset pipeline (SGA_TEST_GODOT=1 adds the Godot import test)
+bash .claude/scripts/playtest.sh selftest                 # telemetry, bots, collector, reports (SGA_TEST_GODOT=1 adds Godot)
 (cd .claude/library && python3 -I scripts/validate-skills.py)   # library skills
 ```
 

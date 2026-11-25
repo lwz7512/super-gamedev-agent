@@ -196,3 +196,9 @@ assets/_inbox/*
 !assets/_inbox/.gdignore
 production/qa/assets/
 .claude/.venv/
+
+# Playtest data (playtest.sh): raw sessions and per-run bot output stay local;
+# config.json and the reports (Markdown + charts) are kept.
+production/playtest/sessions/
+production/playtest/inbox/
+production/playtest/sim/*/run-*/

@@ -26,7 +26,8 @@
 # that could not be evaluated). The skill (/play-verify) turns this into the
 # studio's `Run result:` line.
 #
-# Extra engine flags: SGA_GODOT_ARGS (e.g. "--rendering-driver opengl3").
+# Extra engine flags: SGA_GODOT_ARGS (e.g. "--rendering-driver opengl3"); extra
+# game arguments (after --): SGA_USER_ARGS (e.g. "--playtest").
 # Godot is found from $GODOT, `engine.path` in project.yaml, PATH (godot,
 # godot4), then the standard macOS app locations.
 
@@ -152,7 +153,7 @@ run_once() {
   log="$out/godot.log"
   # shellcheck disable=SC2086
   "$G" $flags --path "$PROJ" --fixed-fps 60 ${scene:+"$scene"} -- \
-       "--sga-scenario=$scn" "--sga-out=$out" ${UPDATE:+--sga-update-baselines} > "$log" 2>&1 &
+       "--sga-scenario=$scn" "--sga-out=$out" ${UPDATE:+--sga-update-baselines} ${SGA_USER_ARGS:-} > "$log" 2>&1 &
   pid=$!
   while kill -0 "$pid" 2>/dev/null; do
     if [ "$waited" -ge "$TIMEOUT" ]; then

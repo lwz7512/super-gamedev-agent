@@ -47,6 +47,8 @@ GUIDES = {
         "Scenarios that play the game: scripted input, live-node checks, errors, screenshots, filmstrips, determinism."),
     ".claude/docs/asset-forge.md": ("guide/asset-forge.html", "Asset production",
         "Generate, clean up, check, import and license game art and sound: OpenArt, ElevenLabs, sfxr, placeholders."),
+    ".claude/docs/playtest-data.md": ("guide/playtest-data.html", "Playtest data",
+        "Telemetry, in-game feedback, simulation bots and playtest reports: where players quit, die and get stuck."),
     ".claude/library/README.md": ("guide/library.html", "Knowledge library tour",
         "The awesome-gamedev-agent-skills catalog: how the router picks skills and what each engine covers."),
     ".claude/library/docs/VERSION-SUPPORT.md": ("guide/engine-versions.html", "Engine versions",

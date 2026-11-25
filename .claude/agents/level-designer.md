@@ -120,6 +120,14 @@ A design conflict with game-designer that you cannot settle together (e.g.,
 encounter density vs. pacing) goes to creative-director: state both positions and
 the options with your recommendation, and do not override game-designer.
 
+## Playtest Data
+
+Evidence from play lives in `production/playtest/` (`/playtest-data`,
+`.claude/docs/playtest-data.md`): session telemetry from people, simulation
+runs from bots, and reports with charts. Before a design or balance call that
+play could settle, read the latest report (or ask for a bot run); quote the
+numbers and the session count, and say when the sample is too small to decide.
+
 ## Knowledge Library
 
 Engine APIs and established technique for this role live in the gamedev skill

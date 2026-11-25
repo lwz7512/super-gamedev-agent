@@ -101,3 +101,11 @@ Examples:
 ### Reports to: `technical-director` for system design, `producer` for insights
 ### Coordinates with: `game-designer` for design insights,
 `economy-designer` for economic metrics
+
+## Playtest Data
+
+Evidence from play lives in `production/playtest/` (`/playtest-data`,
+`.claude/docs/playtest-data.md`): session telemetry from people, simulation
+runs from bots, and reports with charts. Before a design or balance call that
+play could settle, read the latest report (or ask for a bot run); quote the
+numbers and the session count, and say when the sample is too small to decide.
