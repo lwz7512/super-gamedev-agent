@@ -278,11 +278,8 @@ def cmd_normalize(proj: Project, args) -> int:
         samples, rate = audioops.read_wav(proj.raw / a["id"] / t["file"])
         st = style["audio"]
         cleaned = audioops.clean(samples, rate, float(st["peak_dbfs"]), float(st["lead_silence_ms"]), bool(a.get("loop")))
-        tmp = proj.raw / a["id"] / "_clean.wav"
-        audioops.write_wav(tmp, cleaned, rate)
-        audioops.encode(tmp, dest)
-        tmp.unlink(missing_ok=True)
-        say(f"{a['id']}: {len(cleaned) / rate:.2f}s -> {a['path']}")
+        peak = audioops.encode_within_peak(cleaned, rate, dest, float(st["peak_dbfs"]), proj.raw / a["id"] / "_clean.wav")
+        say(f"{a['id']}: {len(cleaned) / rate:.2f}s, peak {peak:.2f} dBFS after encoding -> {a['path']}")
         main = t
     record = dict(main)
     record["record"] = proj.rel(proj.raw / a["id"] / "record.json")

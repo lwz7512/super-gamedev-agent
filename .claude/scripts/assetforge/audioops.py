@@ -89,6 +89,28 @@ def encode(src_wav: Path, dest: Path) -> Path:
     return dest
 
 
+def encode_within_peak(samples: list[float], rate: int, dest: Path, peak_dbfs: float, work: Path) -> float:
+    """Encode, then measure the decoded file: lossy codecs overshoot on hard
+    waveforms (sfxr square waves came back at 0 dBFS from -1 through libvorbis
+    and LAME). Lower the gain by the overshoot and encode again, up to 4 times.
+    Returns the decoded peak in dBFS."""
+    gain = 1.0
+    peak = -120.0
+    for _ in range(4):
+        write_wav(work, [x * gain for x in samples], rate)
+        encode(work, dest)
+        if dest.suffix.lower() == ".wav":
+            return analyse([x * gain for x in samples], rate)["peak_dbfs"]
+        decoded, r = read_wav(dest)
+        m = analyse(decoded, r)
+        peak = m["peak_dbfs"]
+        if peak <= peak_dbfs and m["clipped"] == 0:
+            break
+        gain *= 10 ** ((peak_dbfs - 0.3 - peak) / 20) if peak > peak_dbfs else 0.9
+    work.unlink(missing_ok=True)
+    return peak
+
+
 def _has_encoder(name: str) -> bool:
     r = subprocess.run([ffmpeg(), "-hide_banner", "-encoders"], capture_output=True, text=True)
     return any(line.split()[1:2] == [name] for line in r.stdout.splitlines() if len(line.split()) > 1)

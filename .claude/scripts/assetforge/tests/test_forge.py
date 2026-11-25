@@ -377,6 +377,27 @@ class Providers(unittest.TestCase):
         self.assertEqual(len(MockElevenLabs.seen), 1)
 
 
+@unittest.skipUnless(audioops.ffmpeg(), "ffmpeg not installed")
+class LossyHeadroom(unittest.TestCase):
+    """Regression: lossy encoders overshoot on square waves. CI's libvorbis took a
+    -1 dBFS sfxr jump to 0 dBFS with clipped samples; LAME does the same here."""
+
+    def test_normalized_lossy_sfx_keeps_its_headroom(self):
+        root = Path(tempfile.mkdtemp())
+        try:
+            run_cli(root, "init")
+            save_json(root / "assets/style.json", {"audio": {"format": "mp3"}})
+            for preset in ("jump", "laser"):
+                run_cli(root, "add", preset, "--kind", "sfx", "--preset", preset, "--seed", "3")
+                run_cli(root, "gen", preset)
+                self.assertEqual(run_cli(root, "normalize", preset)[0], 0)
+            code, out = run_cli(root, "qa", "-v")
+            self.assertEqual(code, 0, out)
+            self.assertNotIn("FAIL headroom", out)
+        finally:
+            shutil.rmtree(root)
+
+
 class LocalFlow(unittest.TestCase):
     def test_synth_and_placeholder_end_to_end(self):
         root = Path(tempfile.mkdtemp())
