@@ -461,11 +461,8 @@ document.querySelectorAll('[data-filter]').forEach(function (input) {{
         # The hero shows the banner and title; drop them from the rendered README.
         readme.body = re.sub(r"(?s)\A.*?^# [^\n]*\n", "", readme.body, flags=re.M)
         readme.body = re.sub(r"(?m)^<p align=\"center\">.*?</p>\s*$", "", readme.body, flags=re.S)
-        # The hero and the layer grid already say what the README's opening and
-        # layer table say: start the rendered README at the walkthrough.
-        cut = readme.body.find("## How a game moves through it")
-        if cut > 0:
-            readme.body = readme.body[cut:]
+        # The README's own banner, links and badges are dropped above; its
+        # beginner-first text follows the hero as it is.
         body, tokens = self.render_md(readme, here)
         n_agents, n_lib = len(self.docs["agent"]), len(self.docs["library"]) - 1
         n_skills = sum(1 for d in self.docs["skill"] if not d.meta.get("_alias"))
