@@ -159,3 +159,29 @@ a.code-link:hover code { text-decoration: underline; }
 /* tables keep words whole; long tokens still wrap */
 .prose table { overflow-wrap: normal; word-break: normal; }
 .prose td code { overflow-wrap: anywhere; }
+
+/* home: the seven layers */
+.section-title { margin: 34px 0 4px; font-size: 1.35rem; }
+.layers { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 14px; margin: 14px 0 18px; }
+.layer { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border-radius: var(--radius); background: var(--surface);
+  border: 1px solid var(--border); border-top: 4px solid var(--layer, var(--accent)); text-decoration: none; color: var(--text); box-shadow: var(--shadow); }
+.layer:hover { border-color: var(--layer, var(--accent)); }
+.layer .eyebrow { color: var(--layer, var(--muted)); }
+.layer strong { font-family: var(--mono); font-size: 14px; }
+.layer span:last-child { color: var(--muted); font-size: 14.5px; }
+.layer.studio { --layer: var(--studio); }
+.layer.knowledge { --layer: var(--knowledge); }
+.layer.verify { --layer: #2f9e6e; }
+.layer.assets { --layer: #b65bd6; }
+.layer.playtest { --layer: #2c8fd6; }
+.layer.vault { --layer: #c9932a; }
+.layer.evals { --layer: #6d4cff; }
+@media (prefers-color-scheme: dark) {
+  .layer.verify { --layer: #5fd49c; } .layer.assets { --layer: #d99cf0; } .layer.playtest { --layer: #7cc0f2; }
+  .layer.vault { --layer: #f0c46a; } .layer.evals { --layer: #a996ff; }
+}
+.muted { color: var(--muted); }
+.group h3 { margin: 1.2em 0 0.2em; display: flex; align-items: center; gap: 10px; font-size: 1.05rem; }
+.stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.card-title { overflow-wrap: anywhere; }
+.badge { flex-shrink: 0; }

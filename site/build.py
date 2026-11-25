@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import json
 import posixpath
 import re
 import shutil
@@ -34,29 +35,35 @@ BLOB = f"{GITHUB}/blob/main"
 RAW = f"https://raw.githubusercontent.com/{REPO}/main"
 
 # Guide pages: repo path -> (site path, nav title, one-line summary)
+# Guide pages: repo path -> (site path, title, summary, group). Order is reading order.
+GUIDE_GROUPS = [
+    ("Getting started", "How the studio works, from an idea to a shipped game."),
+    ("Layers", "The five layers this template adds, one reference each."),
+    ("Reference", "Skill chains, the knowledge library, engine versions."),
+]
 GUIDES = {
     "docs/WORKFLOW-GUIDE.md": ("guide/workflow.html", "Workflow guide",
-        "Zero to a shipped game: the seven phases, the default minimal path, and every command in order."),
-    "docs/skill-flow-diagrams.md": ("guide/skill-flows.html", "Skill flow diagrams",
-        "How the studio skills chain together, and which artifacts pass between them."),
-    "docs/COLLABORATIVE-DESIGN-PRINCIPLE.md": ("guide/collaboration.html", "Collaboration protocol",
-        "Question, options, decision, draft, approval: how the agents work with you instead of for you."),
+        "Zero to a shipped game: the seven phases, the default minimal path, every command, and where the added layers plug in.", "Getting started"),
     "docs/CCGS-README.md": ("guide/studio.html", "Studio layer tour",
-        "The full Claude Code Game Studios feature tour: hooks, rules, rigor tiers and studio mode."),
-    ".claude/docs/godot-verify.md": ("guide/godot-verify.html", "Play and verify (Godot)",
-        "Scenarios that play the game: scripted input, live-node checks, errors, screenshots, filmstrips, determinism."),
+        "The full Claude Code Game Studios feature tour: hooks, rules, rigor tiers and studio mode.", "Getting started"),
+    "docs/COLLABORATIVE-DESIGN-PRINCIPLE.md": ("guide/collaboration.html", "Collaboration protocol",
+        "Question, options, decision, draft, approval: how the agents work with you instead of for you.", "Getting started"),
+    ".claude/docs/godot-verify.md": ("guide/godot-verify.html", "Run-and-verify (Godot)",
+        "Scenarios that play the game: scripted input, live-node checks, errors, screenshots, filmstrips, determinism.", "Layers"),
     ".claude/docs/asset-forge.md": ("guide/asset-forge.html", "Asset production",
-        "Generate, clean up, check, import and license game art and sound: OpenArt, ElevenLabs, sfxr, placeholders."),
+        "Generate, clean up, check, import and license game art and sound: OpenArt, ElevenLabs, sfxr, placeholders.", "Layers"),
     ".claude/docs/playtest-data.md": ("guide/playtest-data.html", "Playtest data",
-        "Telemetry, in-game feedback, simulation bots and playtest reports: where players quit, die and get stuck."),
+        "Telemetry, in-game feedback, simulation bots and playtest reports: where players quit, die and get stuck.", "Layers"),
     ".claude/docs/studio-vault.md": ("guide/studio-vault.html", "Studio vault",
-        "Memory across games: reusable modules with tests, lessons with evidence, and addenda to library skills."),
+        "Memory across games: reusable modules with tests, lessons with evidence, and addenda to library skills.", "Layers"),
     ".claude/docs/evals.md": ("guide/evals.html", "Evals",
-        "Static integrity checks, layer self-tests and behaviour evals of real Claude runs: is it still one system?"),
+        "Static integrity checks, layer self-tests and behaviour evals of real Claude runs: is it still one system?", "Layers"),
+    "docs/skill-flow-diagrams.md": ("guide/skill-flows.html", "Skill flow diagrams",
+        "How the studio skills chain together, and which artifacts pass between them.", "Reference"),
     ".claude/library/README.md": ("guide/library.html", "Knowledge library tour",
-        "The awesome-gamedev-agent-skills catalog: how the router picks skills and what each engine covers."),
+        "The awesome-gamedev-agent-skills catalog: how the router picks skills and what each engine covers.", "Reference"),
     ".claude/library/docs/VERSION-SUPPORT.md": ("guide/engine-versions.html", "Engine versions",
-        "The engine releases every library skill is checked against."),
+        "The engine releases every library skill is checked against.", "Reference"),
 }
 
 LIBRARY_CATEGORIES = {
@@ -139,7 +146,7 @@ class Doc:
 
 def collect() -> dict[str, list[Doc]]:
     docs: dict[str, list[Doc]] = {"guide": [], "agent": [], "skill": [], "library": []}
-    for src, (out, title, summary) in GUIDES.items():
+    for src, (out, title, summary, group) in GUIDES.items():
         p = ROOT / src
         if not p.exists():
             sys.exit(f"build: guide source missing: {src}")
@@ -147,7 +154,7 @@ def collect() -> dict[str, list[Doc]]:
         if src == ".claude/library/README.md":
             body = re.sub(r"(?ms)^## Sponsors\n.*?(?=^## )", "", body)   # upstream ad slots
             body = re.sub(r"(?m)^.*\]\(#sponsors\).*\n", "", body)       # its badge and contents entry
-        docs["guide"].append(Doc("guide", src, out, Path(out).stem, title, summary, body=body))
+        docs["guide"].append(Doc("guide", src, out, Path(out).stem, title, summary, body=body, group=group))
 
     for p in sorted((ROOT / ".claude/agents").glob("*.md")):
         fm, body = parse_frontmatter(p.read_text(encoding="utf-8"))
@@ -175,6 +182,7 @@ def collect() -> dict[str, list[Doc]]:
         d.meta["_active"] = name in active
         docs["library"].append(d)
 
+    docs["vault"] = collect_vault()
     assign_groups(docs["agent"], ROOT / ".claude/docs/agent-roster.md")
     assign_groups(docs["skill"], ROOT / ".claude/docs/skills-reference.md")
     for d in docs["skill"]:
@@ -183,6 +191,25 @@ def collect() -> dict[str, list[Doc]]:
             d.meta["_alias"] = True
     docs["skill"].sort(key=lambda d: d.group == "Old names")
     return docs
+
+
+def collect_vault() -> list[Doc]:
+    """Modules (README + module.json), lessons and addenda from vault/."""
+    out = []
+    v = ROOT / "vault"
+    for mj in sorted(v.glob("modules/*/*/module.json")):
+        m = json.loads(mj.read_text(encoding="utf-8"))
+        readme = mj.parent / "README.md"
+        out.append(Doc("vault", rel(readme if readme.exists() else mj), f"vault/module-{m['name']}.html", m["name"], m["name"],
+                       m.get("description", ""), m, readme.read_text(encoding="utf-8") if readme.exists() else "", group="module"))
+    for lp in sorted(v.glob("lessons/*.md"), reverse=True):
+        fm, body = parse_frontmatter(lp.read_text(encoding="utf-8"))
+        first = next((ln for ln in body.splitlines() if ln.strip()), "")
+        out.append(Doc("vault", rel(lp), f"vault/lesson-{lp.stem}.html", lp.stem, fm.get("title", lp.stem), first, fm, body, group="lesson"))
+    for ap in sorted(v.glob("addenda/*.md")):
+        out.append(Doc("vault", rel(ap), f"vault/addenda-{ap.stem}.html", ap.stem, ap.stem,
+                       f"Corrections from this studio's games to the library skill {ap.stem}.", {}, ap.read_text(encoding="utf-8"), group="addenda"))
+    return out
 
 
 def assign_groups(items: list[Doc], ref: Path) -> None:
@@ -318,7 +345,7 @@ class Site:
         u = lambda t: self.url(here, t)
         nav = [("index.html", "Home", "home"), ("guide/index.html", "Guides", "guide"),
                ("agents/index.html", "Agents", "agent"), ("skills/index.html", "Studio skills", "skill"),
-               ("library/index.html", "Knowledge library", "library")]
+               ("library/index.html", "Knowledge library", "library"), ("vault/index.html", "Vault", "vault")]
         current = ' aria-current="page"'
         nav_html = "".join(
             f'<a href="{u(h)}"{current if k == active else ""}>{t}</a>' for h, t, k in nav)
@@ -423,6 +450,7 @@ document.querySelectorAll('[data-filter]').forEach(function (input) {{
         n += self.guides()
         n += self.detail_pages()
         n += self.catalogs()
+        n += self.vault_pages()
         self.sitemap()
         return n
 
@@ -433,52 +461,68 @@ document.querySelectorAll('[data-filter]').forEach(function (input) {{
         # The hero shows the banner and title; drop them from the rendered README.
         readme.body = re.sub(r"(?s)\A.*?^# [^\n]*\n", "", readme.body, flags=re.M)
         readme.body = re.sub(r"(?m)^<p align=\"center\">.*?</p>\s*$", "", readme.body, flags=re.S)
+        # The hero and the layer grid already say what the README's opening and
+        # layer table say: start the rendered README at the walkthrough.
+        cut = readme.body.find("## How a game moves through it")
+        if cut > 0:
+            readme.body = readme.body[cut:]
         body, tokens = self.render_md(readme, here)
         n_agents, n_lib = len(self.docs["agent"]), len(self.docs["library"]) - 1
         n_skills = sum(1 for d in self.docs["skill"] if not d.meta.get("_alias"))
         # Engines = rows of the router's detection table, so the count follows the library.
         router = (ROOT / ".claude/library/router/SKILL.md").read_text(encoding="utf-8")
         engines = len(re.findall(r"(?m)^\| *\d+ *\| *[^|]+\| *`", router))
+        vault = self.docs["vault"]
+        n_mod = sum(1 for d in vault if d.group == "module")
+        n_les = sum(1 for d in vault if d.group == "lesson")
         stats = "".join(f'<div class="stat"><strong>{v}</strong><span>{k}</span></div>' for v, k in (
-            (n_agents, "role agents"), (n_skills, "studio skills"), (n_lib, "library skills"), (engines, "engines")))
+            (n_agents, "role agents"), (n_skills, "studio skills"), (n_lib, "library skills"), (engines, "engines"),
+            (n_mod, "vault modules"), (n_les, "lessons")))
         u = lambda t: self.url(here, t)
+        layers = [
+            ("studio", "Studio", f"{n_agents} agents · {n_skills} skills", "Directors, leads and specialists run the process: brief, prototype, stories, gates, release.", "agents/index.html"),
+            ("knowledge", "Knowledge", f"{n_lib} skills · {engines} engines", "Version-pinned engine skills, disciplines and genres, picked per request by a router.", "library/index.html"),
+            ("verify", "Run-and-verify", "/play-verify", "Agents play the Godot game from a scenario and look at what happened.", "guide/godot-verify.html"),
+            ("assets", "Asset production", "/make-assets", "OpenArt, ElevenLabs and a synth, then cleanup, checks, import and a licence ledger.", "guide/asset-forge.html"),
+            ("playtest", "Playtest data", "/playtest-data", "Telemetry, feedback and bots that find soft-locks; reports with charts.", "guide/playtest-data.html"),
+            ("vault", "Studio vault", f"{n_mod} module(s) · {n_les} lessons", "What earlier games built and learned, offered to the next.", "vault/index.html"),
+            ("evals", "Evals", "/studio-evals", "Integrity checks, every layer's tests, and scored runs of the agent itself.", "guide/evals.html"),
+        ]
+        grid = "".join(f'<a class="layer {k}" href="{u(href)}"><span class="eyebrow">{i + 1} · {name}</span>'
+                       f'<strong>{html.escape(sub)}</strong><span>{html.escape(text)}</span></a>'
+                       for i, (k, name, sub, text, href) in enumerate(layers))
         main = f"""
 <section class="hero">
-  <img class="banner" src="{u('assets/banner.svg')}" alt="Super Gamedev Agent: a studio layer of 49 agents and 75 workflows over a knowledge layer of 79 skills across 12 engines" width="1280" height="400">
-  <p class="tagline">A Claude Code setup for making games: a studio of AI agents that run the
-  process, backed by a skill library that knows your engine.</p>
+  <img class="banner" src="{u('assets/banner.svg')}" alt="Super Gamedev Agent: a Claude Code game studio in seven layers" width="1280" height="400">
+  <p class="tagline">A Claude Code setup for making games, in seven layers: a studio of AI agents
+  that runs the process, a library that knows your engine, and five layers that let the agents
+  play the game, make its assets, learn from playtests, remember across games and check themselves.</p>
   <div class="stats">{stats}</div>
   <pre class="quickstart"><code>git clone git@github.com:{REPO}.git
 super-gamedev-agent/bin/new-game.sh ~/games/my-game godot
 cd ~/games/my-game &amp;&amp; claude      # then: "make me a game"</code></pre>
 </section>
-<section class="pillars">
-  <a class="pillar studio" href="{u('agents/index.html')}"><span class="eyebrow">Studio layer</span>
-    <strong>{n_agents} agents, {n_skills} workflow skills</strong>
-    <span>Directors, leads and specialists with a brief → prototype → stories → gates → ship pipeline, hooks and rigor tiers.</span></a>
-  <a class="pillar knowledge" href="{u('library/index.html')}"><span class="eyebrow">Knowledge layer</span>
-    <strong>{n_lib} skills, {engines} engines</strong>
-    <span>Version-pinned engine skills, disciplines, genres and publishing, picked per request by a router.</span></a>
-  <a class="pillar guides" href="{u('guide/index.html')}"><span class="eyebrow">Guides</span>
-    <strong>{len(self.docs['guide'])} guides</strong>
-    <span>The workflow from zero to shipped, the collaboration protocol, skill flows and engine versions.</span></a>
-</section>
+<h2 class="section-title">The seven layers</h2>
+<section class="layers">{grid}</section>
 <article class="prose">{body}</article>"""
         self.page(here, "Super Gamedev Agent",
-                  "A Claude Code game studio: 49 role agents and 75 workflow skills backed by a 79-skill knowledge library across 12 engines.",
+                  "A Claude Code game studio in seven layers: role agents, an engine knowledge library, run-and-verify, asset production, playtest data, a cross-game vault and evals.",
                   main, "home")
         return 1
 
     def guides(self) -> int:
         here = "guide/index.html"
-        cards = "".join(
-            f'<a class="card" href="{self.url(here, d.out)}"><span class="card-title">{html.escape(d.title)}</span>'
-            f'<span class="card-text">{html.escape(d.summary)}</span></a>' for d in self.docs["guide"])
-        self.page(here, "Guides", "Guides to the Super Gamedev Agent studio and knowledge library.",
-                  f'<h1>Guides</h1><p class="lead">Long-form documentation from the repo.</p><div class="cards">{cards}</div>', "guide")
+        sections = ""
+        for group, lead in GUIDE_GROUPS:
+            cards = "".join(
+                f'<a class="card" href="{self.url(here, d.out)}"><span class="card-title">{html.escape(d.title)}</span>'
+                f'<span class="card-text">{html.escape(d.summary)}</span></a>' for d in self.docs["guide"] if d.group == group)
+            sections += f'<section class="group"><h2>{group}</h2><p class="lead">{lead}</p><div class="cards">{cards}</div></section>'
+        self.page(here, "Guides", "Guides to the Super Gamedev Agent studio, its layers and the knowledge library.",
+                  f'<h1>Guides</h1><p class="lead">Long-form documentation from the repo.</p>{sections}', "guide")
         for d in self.docs["guide"]:
             body, tokens = self.render_md(d, d.out)
-            main = (f'<nav class="crumbs"><a href="{self.url(d.out, "guide/index.html")}">Guides</a></nav>'
+            main = (f'<nav class="crumbs"><a href="{self.url(d.out, "guide/index.html")}">Guides</a> / {d.group}</nav>'
                     f'<p class="source"><a href="{BLOB}/{d.src}">{d.src}</a></p><article class="prose">{body}</article>')
             self.page(d.out, d.title, d.summary, main, "guide", aside=self.toc(tokens))
         return 1 + len(self.docs["guide"])
@@ -551,6 +595,64 @@ cd ~/games/my-game &amp;&amp; claude      # then: "make me a game"</code></pre>
                   + f'<div id="lib-list">{self.catalog(here, lib, groups, lambda d: "on" if d.meta.get("_active") else "")}</div>',
                   "library")
         return 3
+
+    def vault_pages(self) -> int:
+        items = self.docs["vault"]
+        here = "vault/index.html"
+        mods = [d for d in items if d.group == "module"]
+        lessons = [d for d in items if d.group == "lesson"]
+        addenda = [d for d in items if d.group == "addenda"]
+
+        def card(d, badge=""):
+            b = f'<span class="badge">{html.escape(badge)}</span>' if badge else ""
+            return (f'<a class="card" href="{self.url(here, d.out)}"><span class="card-title">{html.escape(d.title)}{b}</span>'
+                    f'<span class="card-text">{html.escape(trim(d.summary, 200))}</span></a>')
+        kinds = {}
+        for d in lessons:
+            kinds.setdefault(str(d.meta.get("kind", "other")), []).append(d)
+        heading = {"pitfall": "Pitfalls", "technique": "Techniques", "process": "Process", "tool": "Tools", "design": "Design"}
+        lesson_html = "".join(f'<section class="group"><h3>{heading.get(k, k.capitalize())} <span class="count">{len(v)}</span></h3>'
+                              f'<div class="cards">{"".join(card(d, "promoted" if d.meta.get("status") == "promoted" else "") for d in v)}</div></section>'
+                              for k, v in sorted(kinds.items()))
+        main = (f'<h1>Studio vault</h1><p class="lead">What this studio\'s games built and learned, offered to every new game: '
+                f'{len(mods)} reusable module(s), {len(lessons)} lessons and {len(addenda)} addenda to library skills. '
+                f'Use it through <code>/studio-vault</code> or <code>bash .claude/scripts/vault.sh</code> '
+                f'(<a href="{self.url(here, "guide/studio-vault.html")}">guide</a>).</p>'
+                + self.search("vault-list", "the vault")
+                + f'<div id="vault-list"><section class="group"><h2>Modules <span class="count">{len(mods)}</span></h2>'
+                f'<p class="lead">Systems with relocatable paths and tests; <code>vault.sh add &lt;name&gt;</code> installs one.</p>'
+                f'<div class="cards">{"".join(card(d, d.meta.get("version", "")) for d in mods)}</div></section>'
+                f'<section class="group"><h2>Lessons <span class="count">{len(lessons)}</span></h2>'
+                f'<p class="lead">What happened, the evidence, and what to do next time. Session start shows them for the game\'s engine.</p>'
+                f'{lesson_html}</section>'
+                f'<section class="group"><h2>Addenda <span class="count">{len(addenda)}</span></h2>'
+                f'<p class="lead">Promoted lessons, read beside a library skill; they win where they disagree.</p>'
+                f'<div class="cards">{"".join(card(d) for d in addenda)}</div></section></div>')
+        self.page(here, "Studio vault", "Reusable modules, lessons and library-skill addenda from this studio's games.", main, "vault")
+        for d in items:
+            body, tokens = self.render_md(d, d.out)
+            chips = []
+            if d.group == "module":
+                m = d.meta
+                chips = [f"v{m.get('version', '?')}", f"{m.get('engine', '?')} {m.get('engine_min', '')}+",
+                         f"installs to {m.get('install_dir', '?')}"] + [f"autoload {k}" for k in m.get("autoloads", {})] + \
+                        [f"tag {t}" for t in m.get("tags", [])]
+                body = (f'<pre><code>bash .claude/scripts/vault.sh add {html.escape(d.name)}\n'
+                        f'bash .claude/scripts/vault.sh verify {html.escape(d.name)}</code></pre>') + body
+            elif d.group == "lesson":
+                m = d.meta
+                chips = [str(m.get("kind", "")), f"engine {m.get('engine', '?')}", f"from {m.get('game', '?')}", str(m.get("date", "")),
+                         str(m.get("status", "active"))] + [f"tag {t}" for t in (m.get("tags") or [])]
+                body += "".join(f'<p class="muted">Bears on: ' + ", ".join(f"<code>{html.escape(x)}</code>" for x in (m.get("skills") or [])) + "</p>") \
+                    if m.get("skills") else ""
+                body = self.link_code(body, d.out)
+            kind = {"module": "Module", "lesson": "Lesson", "addenda": "Addenda"}[d.group]
+            main = (f'<nav class="crumbs"><a href="{self.url(d.out, "vault/index.html")}">Vault</a> / {kind}</nav>'
+                    f'<h1 class="detail-title">{html.escape(d.title)}</h1>'
+                    + (f'<div class="chips">{"".join(f"<span class=chip>{html.escape(c)}</span>" for c in chips if c.strip())}</div>' if chips else "")
+                    + f'<p class="source"><a href="{BLOB}/{d.src}">View source: {d.src}</a></p><article class="prose">{body}</article>')
+            self.page(d.out, d.title, d.summary or d.title, main, "vault", aside=self.toc(tokens))
+        return 1 + len(items)
 
     def sitemap(self) -> None:
         urls = sorted(p.relative_to(self.out).as_posix() for p in self.out.rglob("*.html"))

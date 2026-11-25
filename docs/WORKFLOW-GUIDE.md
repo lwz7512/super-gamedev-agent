@@ -15,8 +15,27 @@
 
 ---
 
+## Layers in This Template
+
+This guide describes the studio's own pipeline. This template adds five layers
+that plug into its phases; each has a skill and a reference in `.claude/docs/`.
+
+| Phase | Added layer | What it adds there |
+|---|---|---|
+| 1 Concept, 2 Systems Design | Studio vault (`/studio-vault`) | Search earlier games' modules before designing a common system; read their lessons |
+| 3 Technical Setup | Run-and-verify, playtest data | `/setup-engine` offers the Godot test harness; `/playtest-data` installs telemetry |
+| 4 Pre-Production, 5 Production | Run-and-verify (`/play-verify`) | Every visible change is played from a scenario before its story closes |
+| 4 Pre-Production, 5 Production | Asset production (`/make-assets`) | Art and sound from specs, cleaned up, checked, imported, licensed |
+| 5 Production, 6 Polish | Playtest data (`/playtest-data`) | Bots find soft-locks and crashes; telemetry and F8 feedback from testers |
+| 7 Release | Asset ledger, playtest checks | `asset-forge.sh ledger check --release`; `playtest.sh check` |
+| After each milestone | Studio vault | `/retrospective` lessons and harvested modules go to the vault |
+| Any time | Evals (`/studio-evals`) | Check the studio still works as one system after updates or edits |
+
+---
+
 ## Table of Contents
 
+0. [Layers in This Template](#layers-in-this-template)
 1. [Quick Start](#quick-start)
 2. [The Default Path: Rigor Minimal](#the-default-path-rigor-minimal)
 3. [Phase 1: Concept](#phase-1-concept)

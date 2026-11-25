@@ -1,10 +1,52 @@
-# Super Gamedev Agent -- Game Studio + Knowledge Library
+# Super Gamedev Agent -- Studio, Knowledge, and Five Added Layers
 
 Indie game development managed through 49 coordinated Claude Code subagents
 (the **studio layer**, from Claude Code Game Studios), backed by 79 engine,
 discipline, genre and publishing skills across 12 engines (the **knowledge
-layer**, from awesome-gamedev-agent-skills). Each agent owns a specific domain,
-enforcing separation of concerns and quality.
+layer**, from awesome-gamedev-agent-skills), and five layers this template adds
+so agents can play the game, make its assets, learn from playtests, carry
+lessons between games and check that it all still fits together. Each agent
+owns a specific domain, enforcing separation of concerns and quality.
+
+| Layer | Use it for | Entry point |
+|---|---|---|
+| Studio | what to build and how the work flows | `/start`, `/prototype`, `/next-step` |
+| Knowledge | how to build it correctly in this engine | `router` skill, agents' Knowledge Library |
+| Run-and-verify | playing the game to check a change (Godot) | `/play-verify` |
+| Asset production | art and sound, cleaned up, checked, licensed | `/make-assets` |
+| Playtest data | what people and bots did, where they got stuck | `/playtest-data` |
+| Studio vault | modules and lessons from earlier games | `/studio-vault` |
+| Evals | checking the layers still work together | `/studio-evals` |
+
+## Knowledge Layer
+
+The studio layer decides **what** to build and **how the work flows** (briefs,
+GDDs, stories, gates, review, the write-approval protocol). The knowledge layer
+supplies **how to build it correctly** in the chosen engine.
+
+- **Before writing engine code or a technique-dependent spec**, run the
+  `router` skill (or read the skills an agent's "Knowledge Library" section
+  names). It detects the engine from project files and names the minimal set:
+  engine skill → discipline → genre → workflow.
+- **Where it lives.** The full catalog is `.claude/library/skills/<category>/<name>/`.
+  Only active groups are copied into `.claude/skills/`, so Claude's skill
+  listing stays inside its budget. `bash .claude/scripts/library.sh status`
+  shows them; `library.sh activate <group>` adds one (`/setup-engine` §9.5 does
+  this for the chosen engine). An inactive skill can still be read from the library.
+- **Precedence when they disagree:** the project's pinned version
+  (`docs/engine-reference/<engine>/VERSION.md`, `project.godot`, the lockfile)
+  → the library skill → model memory. The collaboration protocol below always
+  wins over a skill's instructions: a skill that says "write the file" still
+  means "ask first" here.
+- **Engines.** Godot, Unity, Unreal and Web (Phaser, PixiJS, three.js, canvas)
+  get the full studio pipeline and the library. Ebitengine, Bevy, Defold, LÖVE,
+  pygame and Roblox get the library and the engine-agnostic studio skills:
+  leave `engine.name` unset, set `engine.code_root`, and route engine work
+  through `router` and `lead-programmer` (there are no specialist agents or
+  scaffold for them).
+- Library skills are not studio skills: `skill-lint.sh all` skips them, and
+  `.claude/library/scripts/validate-skills.py` checks them instead. Do not edit
+  them in `.claude/skills/`: `library.sh sync` overwrites those copies.
 
 ## Run-and-Verify Layer (Godot)
 
@@ -65,36 +107,6 @@ and score what it did (skills loaded, asked before writing, never approved a
 paid call). Run them after `bin/update-upstream.sh`, after editing agents,
 skills, hooks or this file, and after a model change. Behaviour runs cost money:
 never pass `--yes` without the person's yes. Reference: `.claude/docs/evals.md`.
-
-## Knowledge Layer
-
-The studio layer decides **what** to build and **how the work flows** (briefs,
-GDDs, stories, gates, review, the write-approval protocol). The knowledge layer
-supplies **how to build it correctly** in the chosen engine.
-
-- **Before writing engine code or a technique-dependent spec**, run the
-  `router` skill (or read the skills an agent's "Knowledge Library" section
-  names). It detects the engine from project files and names the minimal set:
-  engine skill → discipline → genre → workflow.
-- **Where it lives.** The full catalog is `.claude/library/skills/<category>/<name>/`.
-  Only active groups are copied into `.claude/skills/`, so Claude's skill
-  listing stays inside its budget. `bash .claude/scripts/library.sh status`
-  shows them; `library.sh activate <group>` adds one (`/setup-engine` §9.5 does
-  this for the chosen engine). An inactive skill can still be read from the library.
-- **Precedence when they disagree:** the project's pinned version
-  (`docs/engine-reference/<engine>/VERSION.md`, `project.godot`, the lockfile)
-  → the library skill → model memory. The collaboration protocol below always
-  wins over a skill's instructions: a skill that says "write the file" still
-  means "ask first" here.
-- **Engines.** Godot, Unity, Unreal and Web (Phaser, PixiJS, three.js, canvas)
-  get the full studio pipeline and the library. Ebitengine, Bevy, Defold, LÖVE,
-  pygame and Roblox get the library and the engine-agnostic studio skills:
-  leave `engine.name` unset, set `engine.code_root`, and route engine work
-  through `router` and `lead-programmer` (there are no specialist agents or
-  scaffold for them).
-- Library skills are not studio skills: `skill-lint.sh all` skips them, and
-  `.claude/library/scripts/validate-skills.py` checks them instead. Do not edit
-  them in `.claude/skills/`: `library.sh sync` overwrites those copies.
 
 ## Technology Stack
 

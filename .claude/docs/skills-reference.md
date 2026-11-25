@@ -1,11 +1,23 @@
 # Available Skills (Slash Commands)
 
-75 slash commands organized by phase. Type `/` in Claude Code to access any of them.
+80 slash commands organized by phase: the studio's 75, and 5 for the layers this template adds. Type `/` in Claude Code to access any of them.
 
 > **Renamed in 1.3.0:** `/help` is now `/next-step`, `/settings` is now
 > `/project-settings` and `/changelog` is now `/write-changelog`, because other
 > AI tools keep those three names for commands of their own. The old names still
 > work: each prints one line naming the new name, then runs it.
+
+## Super Gamedev Layers
+
+Added by this template on top of the studio's own skills; each has a reference in `.claude/docs/`.
+
+| Command | Purpose |
+|---------|---------|
+| `/play-verify` | Godot: play the game from a scenario (scripted input, live-node checks, errors, screenshots, filmstrip, determinism) |
+| `/make-assets` | Produce art and sound from specs: OpenArt (MCP), ElevenLabs, sfxr synth, placeholders → clean up, QA, Godot import, in-engine look, licence ledger |
+| `/playtest-data` | Telemetry, in-game feedback, simulation bots (monkey or scripted) and playtest reports: funnels, drop-off, death heatmaps, errors, frame times |
+| `/studio-vault` | Reuse across games: find and add vault modules, harvest systems, keep them updated, record lessons and promote them into skill addenda |
+| `/studio-evals` | Checks the combined studio: static integrity, every layer's self-tests, behaviour evals of real Claude runs (ask-first, routing, paid-call guards) |
 
 ## Onboarding & Navigation
 
@@ -36,9 +48,6 @@
 | `/art-bible` | Guided, section-by-section Art Bible authoring — creates visual identity spec before asset production begins |
 | `/asset-spec` | Generate per-asset visual specifications and AI generation prompts from GDDs, level docs, or character profiles |
 | `/asset-audit` | Audit assets for naming conventions, file size budgets, and pipeline compliance |
-| `/studio-evals` | Checks the combined studio: static integrity, every layer's self-tests, behaviour evals of real Claude runs (ask-first, routing, paid-call guards) |
-| `/studio-vault` | Reuse across games: find and add vault modules, harvest systems, keep them updated, record lessons and promote them into skill addenda |
-| `/make-assets` | Produce art and sound from specs: OpenArt (MCP), ElevenLabs, sfxr synth, placeholders → clean up, QA, Godot import, in-engine look, licence ledger |
 
 ## UX & Interface Design
 
@@ -90,8 +99,6 @@
 |---------|---------|
 | `/qa-plan` | Generate a QA test plan for a sprint or feature |
 | `/smoke-check` | Run critical path smoke test gate before QA hand-off |
-| `/playtest-data` | Telemetry, in-game feedback, simulation bots (monkey or scripted) and playtest reports: funnels, drop-off, death heatmaps, errors, frame times |
-| `/play-verify` | Godot: play the game from a scenario (scripted input, live-node checks, errors, screenshots, filmstrip, determinism) |
 | `/soak-test` | Generate a soak test protocol for extended play sessions |
 | `/regression-suite` | Map test coverage to GDD critical paths, identify fixed bugs without regression tests |
 | `/test-setup` | Scaffold the test framework and CI/CD pipeline for the project's engine |
