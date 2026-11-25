@@ -38,7 +38,7 @@ jobs:
       - name: Self-test
         env:
           TMPDIR: ${{ runner.temp }}
-          SGA_GODOT_ARGS: --rendering-driver opengl3
+          SGA_GODOT_ARGS: --rendering-driver opengl3 --audio-driver Dummy
         run: xvfb-run -a -s "-screen 0 1280x720x24" bash .claude/scripts/godot-verify.sh selftest --timeout 180
       - name: Keep the outputs
         if: always()

@@ -19,7 +19,7 @@ playing it (`/team-qa`).
 | Runner | `bash .claude/scripts/godot-verify.sh` | Finds Godot, adds the autoload for one run, enforces a timeout, reads the log, prints observations |
 | Scenarios | `tests/scenarios/*.json` in the game | What to press, when, and what must be true |
 | Skill | `/play-verify` | Writes the scenario from the acceptance criteria, runs it, looks at the pictures, reports the `Run result:` line |
-| Self-test | `godot-verify.sh selftest` | Plays a fixture game and confirms a pass, a fail, an error, a not-assessed and a determinism run each report as they should |
+| Self-test | `godot-verify.sh selftest` | Plays a fixture game and confirms a pass, a fail, a runtime error, a parse error, a not-assessed run and a determinism run each report as they should |
 
 The harness is never listed in `project.godot`: the runner writes a temporary
 `override.cfg` that adds it, and restores the old file afterwards. Without

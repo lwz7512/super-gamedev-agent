@@ -1,0 +1,7 @@
+{
+  "name": "parse",
+  "scene": "res://broken_scene.tscn",
+  "steps": [
+    {"at": 5, "expect": "true", "label": "passes; the scene's parse error alone must fail the run"}
+  ]
+}

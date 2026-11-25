@@ -47,6 +47,8 @@ func _ready() -> void:
 	if not args.has("sga-scenario"):
 		set_process(false)
 		return
+	# The runner counts log errors before this line as ones the harness never saw.
+	print("sga_verify: harness started")
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	process_priority = -1000          # before the game's own _process each frame
 	_headless = DisplayServer.get_name() == "headless"

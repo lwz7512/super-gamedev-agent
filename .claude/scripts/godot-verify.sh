@@ -11,7 +11,8 @@
 #   godot-verify.sh determinism <scenario.json> [--out DIR]
 #                                            run twice headless, compare traces
 #   godot-verify.sh selftest                 prove the harness on its fixture:
-#                                            a pass, a fail, an error, a not-assessed
+#                                            a pass, a fail, a runtime error, a parse
+#                                            error, a not-assessed
 #                                            and a determinism run
 #
 # A scenario (format: .claude/docs/godot-verify.md) drives input at exact
@@ -166,8 +167,7 @@ run_once() {
 
 # summarise <out-dir> -> prints observations, sets STATUS (pass|fail|not_assessed)
 summarise() {
-  local out="$1" log_errors
-  log_errors=$(grep -cE '^(SCRIPT |USER |SHADER )?ERROR:|Parse Error|^  *Failed to load script' "$out/godot.log" 2>/dev/null)
+  local out="$1"
   if [ ! -f "$out/report.json" ]; then
     STATUS=not_assessed
     if [ -f "$out/timeout" ]; then echo "NOT ASSESSED: the run did not finish within ${TIMEOUT}s"
@@ -177,9 +177,25 @@ summarise() {
     echo "log tail ($out/godot.log):"; tail -n 15 "$out/godot.log" 2>/dev/null | sed 's/^/  /'
     return
   fi
-  python3 -I - "$out/report.json" "$log_errors" <<'PY'
-import json, sys
-r = json.load(open(sys.argv[1])); log_errors = int(sys.argv[2] or 0)
+  python3 -I - "$out/report.json" "$out/godot.log" <<'PY'
+import json, re, sys
+r = json.load(open(sys.argv[1]))
+try:
+    log = open(sys.argv[2], errors="replace").read().splitlines()
+except OSError:
+    log = []
+# Errors the harness's Logger never sees: anything before it started (a failed
+# autoload) and parse errors at any time (Godot reports those outside Logger,
+# confirmed on 4.7.2). A missing audio device is the machine, not the game:
+# noted, not counted.
+ERR = re.compile(r"^(SCRIPT |USER |SHADER )?ERROR:|Parse Error|^\s*Failed to load script")
+start = next((i for i, l in enumerate(log) if l.startswith("sga_verify: harness started")), len(log))
+early, env = [], []
+for i, line in enumerate(log):
+    if not ERR.search(line) or (i >= start and "Parse Error" not in line):
+        continue
+    nxt = log[i + 1] if i + 1 < len(log) else ""
+    (env if "audio_driver" in nxt else early).append(line.strip())
 mark = {"pass": "held  ", "fail": "BROKE ", "not_assessed": "N/A   "}
 print(f"scenario: {r['scenario']}  ·  {r['frames_run']} frames  ·  seed {r['seed']}  ·  {r['godot']} ({r['renderer']})")
 for c in r["checks"]:
@@ -192,17 +208,18 @@ if r.get("filmstrip"):
     print(f"  film   {f['path']} (frames {f['frames'][0]}-{f['frames'][-1]}, {f['columns']} per row)")
 if r.get("trace"):
     print(f"  trace  {r['trace']}")
-errs = r["errors"]
-print(f"  errors {r['error_count']} · warnings {r['warning_count']}" + (f" · log shows {log_errors}" if log_errors > r["error_count"] else ""))
-for e in [e for e in errs if e["type"] != "warning"][:8]:
+print(f"  errors {r['error_count']} · warnings {r['warning_count']}" + (f" · {len(early)} more in the log the harness cannot capture (startup, parse errors)" if early else ""))
+for e in [e for e in r["errors"] if e["type"] != "warning"][:8]:
     print(f"    {e['type']}: {e['message']}  ({e['where']})")
+for line in early[:5]:
+    print(f"    startup: {line}")
+if env:
+    print("  note: no audio device, so the game ran on Godot's dummy audio driver (sound not observed)")
 for n in r["notes"]:
     print(f"  note: {n}")
 status = r["status"]
-# Errors the harness could not see (parse errors, failures before it loaded).
-if status == "pass" and log_errors > r["error_count"]:
+if early and status != "fail" and not r.get("allow_errors"):
     status = "fail"
-    print("  note: the log has errors from before the harness started")
 print(f"STATUS: {status}")
 open(sys.argv[1] + ".status", "w").write(status)
 PY
