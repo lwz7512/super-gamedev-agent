@@ -1,5 +1,20 @@
 # Super Gamedev Agent
 
+<p align="center">
+  <a href="https://lwz7512.github.io/super-gamedev-agent/">
+    <img src="site/assets/banner.svg" width="100%"
+         alt="Super Gamedev Agent: a studio layer of 49 agents and 75 workflows over a knowledge layer of 79 skills across 12 engines">
+  </a>
+</p>
+
+<p align="center">
+  <b><a href="https://lwz7512.github.io/super-gamedev-agent/">Documentation site</a></b> ·
+  <a href="https://lwz7512.github.io/super-gamedev-agent/agents/">Agents</a> ·
+  <a href="https://lwz7512.github.io/super-gamedev-agent/skills/">Studio skills</a> ·
+  <a href="https://lwz7512.github.io/super-gamedev-agent/library/">Knowledge library</a> ·
+  <a href="https://lwz7512.github.io/super-gamedev-agent/guide/workflow.html">Workflow guide</a>
+</p>
+
 A Claude Code game-development setup that combines two projects:
 
 | Layer | Source | What it gives you |
@@ -72,7 +87,8 @@ is merged by hand; the files changed locally are:
 - `.claude/skills/setup-engine/SKILL.md` — §9.5 Activate the Knowledge Library
 - `.claude/scripts/skill-lint.sh` — `all` skips library copies (marker file `.library`)
 - `.claude/hooks/session-start.sh` — runs `library.sh check`
-- new: `.claude/scripts/library.sh`, `.claude/library/`, `bin/`, `UPSTREAM.lock`, this README
+- new: `.claude/scripts/library.sh`, `.claude/library/`, `bin/`, `UPSTREAM.lock`, this README,
+  the documentation site (`site/`, deployed by `.github/workflows/pages.yml`)
 - moved: the studio's own README is `docs/CCGS-README.md` (full feature tour, hooks, rigor tiers)
 
 ## Checks

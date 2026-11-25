@@ -173,3 +173,6 @@ $RECYCLE.BIN/
 # the project root. Anchored so a reports/ folder elsewhere stays tracked.
 /reports/
 /test-results/
+
+# === Documentation site build output (site/build.py) ===
+_site/
