@@ -39,7 +39,13 @@ docs/consistency-failures.md
 build/
 builds/
 bin/
-# ...but not an addon's own scripts: gdUnit4's test runner lives in
+# ...but not the template's own scripts (bin/new-game.sh does not copy them
+# into a new game, so a game's bin/ build output stays ignored)
+!/bin/
+/bin/*
+!/bin/new-game.sh
+!/bin/update-upstream.sh
+# ...and not an addon's own scripts: gdUnit4's test runner lives in
 # addons/gdUnit4/bin/, and without it neither /smoke-check nor CI can run tests.
 !addons/gdUnit4/bin/
 obj/
@@ -72,6 +78,8 @@ export_presets.cfg
 
 # === Engine: Unity ===
 [Ll]ibrary/
+# ...but not the vendored gamedev knowledge library (Unity's cache is Library/ at the root)
+!.claude/library/
 [Tt]emp/
 [Oo]bj/
 [Bb]uild/
