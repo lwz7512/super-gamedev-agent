@@ -1,0 +1,50 @@
+# Tests the asset production layer (asset-forge): image keying, fitting and
+# palette lock, sfxr synthesis, audio levelling and loops, QA (each check seen
+# failing on bad input), the licence ledger, the ElevenLabs client against a
+# mock server, the OpenArt-MCP ingest path, and the Godot import + in-engine
+# gallery played by godot-verify.sh.
+name: Asset forge tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".claude/scripts/assetforge/**"
+      - ".claude/scripts/asset-forge.sh"
+      - ".claude/scripts/godot-verify.sh"
+      - ".claude/engines/godot/verify/**"
+      - ".github/workflows/asset-forge.yml"
+  pull_request:
+    paths:
+      - ".claude/scripts/assetforge/**"
+      - ".claude/scripts/asset-forge.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install Pillow, ffmpeg, display and OpenGL
+        run: |
+          pip install "Pillow>=10,<13"
+          sudo apt-get update -q && sudo apt-get install -y -q ffmpeg xvfb libgl1-mesa-dri libglx-mesa0
+      - name: Download Godot ${{ env.GODOT_VERSION }}
+        run: |
+          curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip -d "$RUNNER_TEMP/godot"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Tests (with Godot integration)
+        env:
+          SGA_TEST_GODOT: "1"
+          SGA_GODOT_ARGS: --rendering-driver opengl3 --audio-driver Dummy
+        run: xvfb-run -a -s "-screen 0 1280x720x24" bash .claude/scripts/asset-forge.sh selftest

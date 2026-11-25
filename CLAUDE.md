@@ -19,6 +19,19 @@ a temporary `override.cfg`, so `project.godot` is never edited. Reference:
 `.claude/docs/godot-verify.md`. `godot-verify.sh selftest` proves the harness
 still tells a pass from a fail.
 
+## Asset Production Layer
+
+`/make-assets` turns specs into game-ready art and sound through
+`bash .claude/scripts/asset-forge.sh`: OpenArt images via its MCP server
+(`.mcp.json`; sign in with `/mcp`), ElevenLabs sound effects and voice
+(`ELEVENLABS_API_KEY`), sfxr synth SFX and placeholders, then keying, fitting,
+palette lock, audio levelling, QA, a contact sheet, Godot import and an
+in-engine gallery played by `godot-verify.sh`. Every file gets an
+`assets/provenance.yaml` entry; `ledger check` enforces each provider's
+commercial-use terms against `project.goal`. **Paid calls never run without the
+person's yes** (the tool exits 4 and prints the plan first). Reference:
+`.claude/docs/asset-forge.md`.
+
 ## Knowledge Layer
 
 The studio layer decides **what** to build and **how the work flows** (briefs,

@@ -19,7 +19,7 @@ A Claude Code game-development setup that combines two projects:
 
 | Layer | Source | What it gives you |
 |-------|--------|-------------------|
-| **Studio** (process) | [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) `abc0de7` | 49 role agents (directors → leads → specialists), 76 workflow skills (`/prototype`, `/start`, `/brainstorm`, GDDs, ADRs, stories, sprints, `/gate-check`, `/cut`, release), 15 safety/quality hooks, path-scoped coding rules, a tested idea → brief → playable browser build → grow → ship pipeline, and rigor tiers (`minimal`/`standard`/`full`) |
+| **Studio** (process) | [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) `abc0de7` | 49 role agents (directors → leads → specialists), 77 workflow skills (`/prototype`, `/start`, `/brainstorm`, GDDs, ADRs, stories, sprints, `/gate-check`, `/cut`, release), 15 safety/quality hooks, path-scoped coding rules, a tested idea → brief → playable browser build → grow → ship pipeline, and rigor tiers (`minimal`/`standard`/`full`) |
 | **Knowledge** (technique) | [awesome-gamedev-agent-skills](https://github.com/gamedev-skills/awesome-gamedev-agent-skills) `c6ca6c4` | 79 skills across 12 engines (Godot, Unity, Unreal, Phaser, PixiJS, three.js, Ebitengine, Bevy, Defold, LÖVE, pygame, Roblox), 15 disciplines (AI, save systems, game feel, shaders, procedural gen, …), 9 genres, Steam/itch publishing, and a router that picks the 2–3 that fit. Pinned to current engine releases (Godot 4.7.2, Unity 6.3 LTS, Unreal 5.8, …) with runnable checker scripts |
 
 The studio decides **what** to build and **how the work flows**. The knowledge
@@ -101,6 +101,35 @@ never edited. `godot-verify.sh selftest` proves the harness on a fixture game
 (on CI too: `.github/workflows/godot-verify.yml`). Full reference:
 [`.claude/docs/godot-verify.md`](.claude/docs/godot-verify.md).
 
+## Make assets (art and sound)
+
+`/make-assets` produces game art and sound from specs and keeps the licence
+trail: **generate → clean up → check → look → import → look in-engine → record.**
+
+| Source | What | How |
+|---|---|---|
+| [OpenArt](https://openart.ai/mcp/) | sprites, tiles, icons, UI art | official MCP server in `.mcp.json` (sign in with `/mcp`); results come in with `ingest` |
+| [ElevenLabs](https://elevenlabs.io) | sound effects, voice lines | REST with `ELEVENLABS_API_KEY`; every paid call is shown first and needs a yes |
+| sfxr synth | retro/prototype SFX | local and free; a preset plus a seed always gives the same sound |
+| placeholders | greybox sprites | local and free; a release check fails while any remain |
+
+```bash
+bash .claude/scripts/asset-forge.sh init
+bash .claude/scripts/asset-forge.sh add slime --kind image --category enemy --prompt "green slime, side view"
+bash .claude/scripts/asset-forge.sh ingest <openart-result-url> --id slime --provider openart --model <model>
+bash .claude/scripts/asset-forge.sh normalize slime && asset-forge.sh qa && asset-forge.sh sheet
+bash .claude/scripts/asset-forge.sh godot && bash .claude/scripts/godot-verify.sh run tests/scenarios/asset-gallery.json
+bash .claude/scripts/asset-forge.sh ledger check --release
+```
+
+Cleanup keys out the flat background colour the prompt asks for (or a fake
+checkerboard), cleans the edge fringe, and fits, anchors and palette-locks each
+sprite. For sounds it trims, fades, levels the peak and closes loop seams.
+QA checks size, alpha, palette, frame baselines, silence, clipping and loop
+seams. The ledger writes `assets/provenance.yaml` and enforces each provider's
+commercial-use terms (OpenArt Plus or higher; any paid ElevenLabs plan) when
+`project.goal` is to sell. Reference: [`.claude/docs/asset-forge.md`](.claude/docs/asset-forge.md).
+
 ## Keeping up to date
 
 ```bash
@@ -122,6 +151,10 @@ is merged by hand; the files changed locally are:
   `.claude/skills/play-verify/`, `.claude/docs/godot-verify.md`, `.github/workflows/godot-verify.yml`;
   a pointer in `.claude/docs/run-and-observe.md` and `skills-reference.md`, a
   **Run and Verify (Godot)** section in 9 agents, a Godot step in `/setup-engine` §9.5
+- new (asset production layer): `.claude/scripts/asset-forge.sh`, `.claude/scripts/assetforge/`,
+  `.claude/skills/make-assets/`, `.claude/docs/asset-forge.md`, `.mcp.json` (OpenArt MCP),
+  `.github/workflows/asset-forge.yml`; an **Asset Production** section in 4 agents, a
+  `/make-assets` handoff at the end of `/asset-spec`, a row in `skills-reference.md`
 - moved: the studio's own README is `docs/CCGS-README.md` (full feature tour, hooks, rigor tiers)
 
 ## Checks
@@ -130,6 +163,7 @@ is merged by hand; the files changed locally are:
 bash .claude/scripts/skill-lint.sh all                    # studio skills
 bash .claude/scripts/agent-check.sh                       # studio agents
 bash .claude/scripts/godot-verify.sh selftest             # run-and-verify harness (needs Godot)
+bash .claude/scripts/asset-forge.sh selftest              # asset pipeline (SGA_TEST_GODOT=1 adds the Godot import test)
 (cd .claude/library && python3 -I scripts/validate-skills.py)   # library skills
 ```
 

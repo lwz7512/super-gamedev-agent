@@ -415,3 +415,4 @@ Every phase follows: **Identify → Confirm → Generate → Review → Approve 
 
 - Run `/asset-spec [next-context]` to continue speccing remaining systems, levels, or characters
 - Run `/asset-audit` to validate delivered assets against the written specs and identify gaps or mismatches
+- Run `/make-assets spec:[target-name]` to produce the specced assets: generate (OpenArt, ElevenLabs, synth), clean up, check, import and record their licences

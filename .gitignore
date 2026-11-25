@@ -187,3 +187,12 @@ _site/
 
 # Run-and-verify output (godot-verify.sh); story evidence goes to production/qa/evidence/
 production/qa/verify/
+
+# Asset production (asset-forge.sh): generator takes and drop-ins stay local,
+# but each asset's record.json (prompt, model, date per take) is kept.
+assets/_raw/*/*
+!assets/_raw/*/record.json
+assets/_inbox/*
+!assets/_inbox/.gdignore
+production/qa/assets/
+.claude/.venv/

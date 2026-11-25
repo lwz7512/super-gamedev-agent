@@ -36,6 +36,7 @@
 | `/art-bible` | Guided, section-by-section Art Bible authoring — creates visual identity spec before asset production begins |
 | `/asset-spec` | Generate per-asset visual specifications and AI generation prompts from GDDs, level docs, or character profiles |
 | `/asset-audit` | Audit assets for naming conventions, file size budgets, and pipeline compliance |
+| `/make-assets` | Produce art and sound from specs: OpenArt (MCP), ElevenLabs, sfxr synth, placeholders → clean up, QA, Godot import, in-engine look, licence ledger |
 
 ## UX & Interface Design
 

@@ -116,6 +116,15 @@ Coordinates with: `game-designer` for mechanical audio feedback,
 `narrative-director` for emotional alignment, `lead-programmer` for audio
 system implementation
 
+## Asset Production
+
+Art and sound are produced through `/make-assets` (`.claude/docs/asset-forge.md`):
+the style lock in `assets/style.json`, generation (OpenArt via MCP, ElevenLabs,
+sfxr synth, placeholders), then `asset-forge.sh normalize`, `qa` and `sheet`.
+Read the contact sheet before judging, and for Godot look at the in-engine
+gallery too. Never start a paid generation batch without the person's yes to
+the count, and keep every file's provenance entry accurate.
+
 ## Knowledge Library
 
 Engine APIs and established technique for this role live in the gamedev skill
